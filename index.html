@@ -2,93 +2,26 @@
 <html lang="bs">
 <head>
     <meta charset="UTF-8">
-    <title>Generator Faktura/Ponuda/Narudžbenica - NextGenSolutions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Faktura - NextGenSolutions</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 1200px; margin: auto; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .btn-group { margin: 20px 0; }
-        .btn-group button { margin: 5px; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-size: 14px; }
-        .btn-primary { background: #007bff; color: white; border: none; }
-        .btn-success { background: #28a745; color: white; border: none; }
-        .btn-warning { background: #ffc107; color: black; border: none; }
-        .language-selector { padding: 10px; font-size: 16px; }
-        form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .preview { border: 2px solid #ccc; padding: 30px; min-height: 700px; overflow: auto; margin-top: 20px; background: white; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: left; }
-        th { background: #f4f4f4; font-weight: bold; }
-        input, select, textarea { padding: 8px; width: 100%; box-sizing: border-box; font-size: 14px; }
-        .stavka { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 10px; align-items: center; }
-        #fileInput { display: none; }
-        .logo-upload { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 5px; }
-        .logo-preview { max-width: 200px; max-height: 100px; margin: 10px 0; border: 1px solid #ddd; }
-        .footer-text { font-size: 11px; text-align: center; margin-top: 40px; border-top: 1px solid #ccc; padding-top: 20px; color: #666; }
-        .amount-in-words { font-style: italic; margin: 15px 0; font-size: 14px; background: #f0f0f0; padding: 10px; border-radius: 4px; }
-        .document-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-        .summary-box { text-align: right; margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Generator Dokumenta - NextGenSolutions</h1>
-        <div>
-            <select class="language-selector" id="jezik" onchange="promijeniJezik()">
-                <option value="bs">Bosanski</option>
-                <option value="en">English</option>
-            </select>
-        </div>
-    </div>
-    
-    <div class="logo-upload">
-        <label><strong id="lbl_logo">Logo kompanije:</strong></label><br>
-        <input type="file" accept="image/*" id="logoUpload" onchange="uploadLogo(event)" style="display: inline-block; width: auto; margin: 10px 0;">
-        <button class="btn-warning" onclick="ukloniLogo()" id="btn_ukloni">Ukloni logo</button>
-        <div id="logoContainer"></div>
-    </div>
-
-    <div class="btn-group">
-        <button class="btn-success" onclick="eksportujJSON()" id="btn_json">📥 Eksportuj JSON</button>
-        <button class="btn-warning" onclick="document.getElementById('fileInput').click()" id="btn_import">📤 Importuj JSON</button>
-        <input type="file" id="fileInput" accept=".json" onchange="importujJSON(event)">
-        <button class="btn-primary" onclick="noviDokument()" id="btn_novi">📄 Novi dokument</button>
-        <button class="btn-success" onclick="eksportujHTML()" id="btn_html">💾 Eksportuj HTML</button>
-    </div>
-
-    <form id="forma">
-        <div>
-            <h3 id="h_prodavac">Podaci prodavača</h3>
-            <label>Naziv:</label>
-            <input id="prod_naziv" readonly value="NextGenSolutions d.o.o. Sarajevo">
-            <label>Adresa:</label>
-            <textarea id="prod_adresa" readonly rows="2">Fra Andjela Zvizdovica 1 (PC Unitic)
-Sarajevo, Bosna i Hercegovina</textarea>
-            <label>JIB/ID:</label>
-            <input id="prod_jib" readonly value="4203549920007">
-            <label>Broj računa:</label>
-            <input id="prod_racun" readonly value="134 105 112 002 8469">
-        </div>
-        <div>
-            <h3 id="h_kupac">Podaci kupca</h3>
-            <label>Naziv:</label>
-            <input id="kupac_naziv" placeholder="Naziv / Ime i prezime kupca">
-            <label>Adresa:</label>
-            <input id="kupac_adresa" placeholder="Adresa kupca">
-            <label>PDV broj:</label>
-            <input id="kupac_pdv" placeholder="PDV broj kupca (opcionalno)">
-        </div>
-        <div style="grid-column: span 2;">
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
-                <div>
-                    <label id="lbl_tip">Dokument:</label>
-                    <select id="tip">
-                        <option>Faktura</option>
-                        <option>Ponuda</option>
-                        <option>Narudžbenica</option>
-                    </select>
-                </div>
-                <div>
-                    <label id="lbl_broj">Broj:</label>
-                    <input id="broj" value="001/2025">
-                </div>
-                <div>
-                    <label id="lbl_datum_izd">Datum iz
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-primary:hover { background: #0056b3; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning:hover { background: #e0a800; }
+        select { padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .form-section { padding: 15px; background: #f9f9f9; border-radius: 4px; }
+        .form-section h3 { margin-top: 0; color: #333; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; color: #555; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; margin-bottom: 10px; }
+        textarea { resize: vertical; font-family: Arial, sans-serif; }
+        .stavka-container { margin
