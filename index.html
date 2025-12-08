@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <title>Generator Faktura/Ponuda/Narudžbenica BIH</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: auto; padding: 20px; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .btn-group button { margin: 5px; padding: 10px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; border: none; }
+        .btn-success { background: #28a745; color: white; border: none; }
+        .btn-warning { background: #ffc107; color: black; border: none; }
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .preview { border: 1px solid #ccc; padding: 20px; height: 600px; overflow: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        input, select { padding: 5px; width: 100%; }
+        .stavka { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 10px; }
+        #fileInput { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Generator Dokumenta BIH (Faktura / Ponuda / Narudžbenica)</h1>
+    
+    <div class="header">
+        <div class="btn-group">
+            <button class="btn-success" onclick="eksportujJSON()">📥 Eksportuj JSON</button>
+            <button class="btn-warning" onclick="document.getElementById('fileInput').click()">📤 Importuj JSON</button>
+            <input type="file" id="fileInput" accept=".json" onchange="importujJSON(event)">
+            <button class="btn-primary" onclick="noviDokument()">📄 Novi dokument</button>
+        </div>
+    </div>
+
+    <form id="forma">
+        <div>
+            <h3>Podaci prodavača</h3>
+            <input id="prod_naziv" placeholder="Naziv firme / Ime i prezime">
+            <input id="prod_adresa" placeholder="Adresa">
+            <input id="prod_jib" placeholder="JIB / ID za indirektne poreze">
+            <input id="prod_pdv" placeholder="PDV broj">
+        </div>
+        <div>
+            <h3>Podaci kupca</h3>
+            <input id="kupac_naziv" placeholder="Naziv / Ime i prezime kupca">
+            <input id="kupac_adresa" placeholder="Adresa kupca">
+            <input id="kupac_pdv" placeholder="PDV broj kupca">
+        </div>
+        <div style="grid-column: span 2;">
+            <label>Dokument: <select id="tip"><option>Faktura</option><option>Ponuda</option><option>Narudžbenica</option></select></label>
+            <label>Broj: <input id="broj" value="001/2025"></label>
+            <label>Datum izdavanja: <input id="datum_izd" type="date" value="2025-12-08"></label>
+            <label>Datum isporuke/usluge: <input id="datum_isp" type="date" value="2025-12-08"></label>
+            <label>Mjesto: <input id="mjesto" value="Sarajevo"></label>
+            <label>Uvjeti plaćanja: <input id="placanje" placeholder="Npr. Unaprijed / Rok 15 dana"></label>
+            <label>Valuta: <input id="valuta" value="KM"></label>
+        </div>
+        <div style="grid-column: span 2;">
+            <h3>Stavke</h3>
+            <div id="stavke"></div>
+            <button type="button" class="btn-primary" onclick="dodajStavku()">+ Dodaj stavku</button>
+        </div>
+    </form>
+    
+    <div id="preview" class="preview"></div>
+    <button class="btn-primary" onclick="generisiPDF()">💾 Preuzmi PDF</button>
+
+    <script>
+        function dodajStavku(naziv = '', kolicina = 1, jedinica = 'kom', cijena = 0) {
+            const div = document.createElement('div'); 
+            div.className = 'stavka';
+            div.innerHTML = `
+                <input placeholder="Naziv artikla/usluge" class="naziv" value="${naziv}">
+                <input placeholder="Količina" type="number" class="kolicina" value="${kolicina}">
+                <input placeholder="J.mj." class="jedinica" value="${jedinica}">
+                <input placeholder="Cijena bez PDV" type="number" step="0.01" class="cijena" value="${cijena}">
+                <button onclick="this.parentElement.remove(); azurirajPreview();">❌</button>
+            `;
+            document.getElementById('stavke').appendChild(div);
+            azurirajPreview();
+        }
+
+        function azurirajPreview() {
+            let subtotal = 0;
+            document.querySelectorAll('.stavka').forEach(s => {
+                const kol = parseFloat(s.querySelector('.kolicina').value) || 0;
+                const cij = parseFloat(s.querySelector('.cijena').value) || 0;
+                subtotal += kol * cij;
+            });
+            const pdvUkupno = subtotal * 0.17;
+            const ukupno = subtotal + pdvUkupno;
+            const tip = document.getElementById('tip').value;
+            
+            document.getElementById('preview').innerHTML = `
+                <h2>${tip.toUpperCase()} br. ${document.getElementById('broj').value}</h2>
+                <p><strong>Mjesto i datum izdavanja:</strong> ${document.getElementById('mjesto').value}, ${document.getElementById('datum_izd').value}</p>
+                <p><strong>Datum isporuke/usluge:</strong> ${document.getElementById('datum_isp').value}</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                    <div><strong>Prodavač:</strong><br>${document.getElementById('prod_naziv').value}<br>${document.getElementById('prod_adresa').value}<br>JIB: ${document.getElementById('prod_jib').value}<br>PDV: ${document.getElementById('prod_pdv').value}</div>
+                    <div><strong>Kupac:</strong><br>${document.getElementById('kupac_naziv').value}<br>${document.getElementById('kupac_adresa').value}<br>PDV: ${document.getElementById('kupac_pdv').value}</div>
+                </div>
+                <table>
+                    <thead><tr><th>Artikl/Usluga</th><th>Količina</th><th>J.mj.</th><th>Cijena bez PDV</th><th>Ukupno bez PDV</th></tr></thead>
+                    <tbody>${Array.from(document.querySelectorAll('.stavka')).map(s => {
+                        const naziv = s.querySelector('.naziv').value;
+                        const kol = s.querySelector('.kolicina').value;
+                        const jed = s.querySelector('.jedinica').value;
+                        const cij = parseFloat(s.querySelector('.cijena').value) || 0;
+                        const uk = parseFloat(kol) * cij;
+                        return `<tr><td>${naziv}</td><td>${kol}</td><td>${jed}</td><td>${cij.toFixed(2)}</td><td>${uk.toFixed(2)} ${document.getElementById('valuta').value}</td></tr>`;
+                    }).join('')}</tbody>
+                </table>
+                <h3>Razbijeni iznosi (${document.getElementById('valuta').value})</h3>
+                <p>Naknada bez PDV: ${subtotal.toFixed(2)}<br>PDV 17%: ${pdvUkupno.toFixed(2)}<br><strong>UKUPNO: ${ukupno.toFixed(2)}</strong></p>
+                <p><em>Uvjeti plaćanja: ${document.getElementById('placanje').value}</em></p>
+            `;
+            
+            // Auto-save u localStorage
+            localStorage.setItem('dokument_draft', JSON.stringify(getDokumentData()));
+        }
+
+        function getDokumentData() {
+            const stavke = Array.from(document.querySelectorAll('.stavka')).map(s => ({
+                naziv: s.querySelector('.naziv').value,
+                kolicina: parseFloat(s.querySelector('.kolicina').value),
+                jedinica: s.querySelector('.jedinica').value,
+                cijena: parseFloat(s.querySelector('.cijena').value)
+            }));
+            
+            return {
+                tip: document.getElementById('tip').value,
+                broj: document.getElementById('broj').value,
+                datum_izdavanja: document.getElementById('datum_izd').value,
+                datum_isporuke: document.getElementById('datum_isp').value,
+                mjesto: document.getElementById('mjesto').value,
+                placanje: document.getElementById('placanje').value,
+                valuta: document.getElementById('valuta').value,
+                prodavac: {
+                    naziv: document.getElementById('prod_naziv').value,
+                    adresa: document.getElementById('prod_adresa').value,
+                    jib: document.getElementById('prod_jib').value,
+                    pdv: document.getElementById('prod_pdv').value
+                },
+                kupac: {
+                    naziv: document.getElementById('kupac_naziv').value,
+                    adresa: document.getElementById('kupac_adresa').value,
+                    pdv: document.getElementById('kupac_pdv').value
+                },
+                stavke: stavke
+            };
+        }
+
+        function eksportujJSON() {
+            const data = getDokumentData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${data.tip}_${data.broj.replace(/\//g, '_')}_${data.datum_izdavanja}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importujJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Popuni formu
+                    document.getElementById('tip').value = data.tip || 'Faktura';
+                    document.getElementById('broj').value = data.broj || '';
+                    document.getElementById('datum_izd').value = data.datum_izdavanja || '';
+                    document.getElementById('datum_isp').value = data.datum_isporuke || '';
+                    document.getElementById('mjesto').value = data.mjesto || 'Sarajevo';
+                    document.getElementById('placanje').value = data.placanje || '';
+                    document.getElementById('valuta').value = data.valuta || 'KM';
+                    
+                    document.getElementById('prod_naziv').value = data.prodavac?.naziv || '';
+                    document.getElementById('prod_adresa').value = data.prodavac?.adresa || '';
+                    document.getElementById('prod_jib').value = data.prodavac?.jib || '';
+                    document.getElementById('prod_pdv').value = data.prodavac?.pdv || '';
+                    
+                    document.getElementById('kupac_naziv').value = data.kupac?.naziv || '';
+                    document.getElementById('kupac_adresa').value = data.kupac?.adresa || '';
+                    document.getElementById('kupac_pdv').value = data.kupac?.pdv || '';
+                    
+                    // Obriši stare stavke i dodaj nove
+                    document.getElementById('stavke').innerHTML = '';
+                    if (data.stavke && data.stavke.length > 0) {
+                        data.stavke.forEach(s => dodajStavku(s.naziv, s.kolicina, s.jedinica, s.cijena));
+                    } else {
+                        dodajStavku();
+                    }
+                    
+                    alert('✅ Dokument uspješno importovan!');
+                } catch (err) {
+                    alert('❌ Greška pri učitavanju JSON fajla: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function noviDokument() {
+            if (confirm('Da li želite kreirati novi dokument? Nesačuvane promjene će biti izgubljene.')) {
+                document.getElementById('forma').reset();
+                document.getElementById('stavke').innerHTML = '';
+                dodajStavku();
+                localStorage.removeItem('dokument_draft');
+            }
+        }
+
+        function generisiPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const preview = document.getElementById('preview');
+            doc.html(preview, { 
+                callback: pdf => pdf.save(`${document.getElementById('tip').value}_${document.getElementById('broj').value.replace(/\//g, '_')}.pdf`),
+                x: 10,
+                y: 10
+            });
+        }
+
+        // Event listeneri
+        document.getElementById('forma').addEventListener('input', azurirajPreview);
+        document.getElementById('forma').addEventListener('change', azurirajPreview);
+        
+        // Učitaj draft pri pokretanju
+        window.onload = function() {
+            const draft = localStorage.getItem('dokument_draft');
+            if (draft) {
+                try {
+                    const data = JSON.parse(draft);
+                    const reader = { target: { result: draft } };
+                    importujJSON({ target: { files: [new Blob([draft])] } });
+                } catch (e) {}
+            } else {
+                dodajStavku();
+            }
+        };
+    </script>
+</body>
+</html>
