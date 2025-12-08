@@ -64,4 +64,519 @@
             max-width: 900px;
             margin: 0 auto;
             box-shadow: 0 0 40px rgba(0,0,0,0.1);
-            font-family: 'Segoe UI', -apple-system, BlinkMac
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+        .invoice-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .invoice-logo { max-width: 180px; max-height: 80px; }
+        .invoice-title { text-align: right; }
+        .invoice-title h1 { 
+            font-size: 36px; 
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+        }
+        .invoice-meta { 
+            font-size: 14px;
+            color: #6b7280;
+            margin: 4px 0;
+        }
+        .invoice-parties { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 40px;
+            margin: 40px 0;
+        }
+        .party-box { padding: 0; }
+        .party-label { 
+            font-size: 11px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .party-name { 
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+        .party-details { 
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.7;
+        }
+        .invoice-table { 
+            width: 100%;
+            border-collapse: collapse;
+            margin: 40px 0;
+        }
+        .invoice-table thead {
+            background: #f9fafb;
+            border-top: 2px solid #e5e7eb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .invoice-table th { 
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .invoice-table td { 
+            padding: 16px 12px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #374151;
+        }
+        .invoice-table tbody tr:last-child td { border-bottom: 2px solid #e5e7eb; }
+        .invoice-table .text-right { text-align: right; }
+        .invoice-totals { 
+            margin: 30px 0 0 auto;
+            width: 350px;
+        }
+        .total-row { 
+            display: flex; 
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 14px;
+        }
+        .total-row.subtotal { color: #6b7280; padding-bottom: 12px; }
+        .total-row.vat { color: #6b7280; padding-bottom: 12px; border-bottom: 2px solid #e5e7eb; }
+        .total-row.grand { 
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            padding-top: 18px;
+        }
+        .invoice-notes {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f9fafb;
+            border-left: 4px solid #3b82f6;
+            border-radius: 4px;
+        }
+        .invoice-notes .label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .invoice-notes .content {
+            font-size: 14px;
+            color: #4b5563;
+            font-style: italic;
+        }
+        .payment-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+        }
+        .payment-box .label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+        .payment-box .info {
+            font-size: 14px;
+            color: #1e3a8a;
+        }
+        .invoice-footer { 
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 11px;
+            color: #9ca3af;
+            line-height: 1.8;
+        }
+        @media (max-width: 768px) {
+            .grid2 { grid-template-columns: 1fr; }
+            .item-row { grid-template-columns: 1fr; }
+            .invoice-header { flex-direction: column; }
+            .invoice-parties { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-box">
+            <h1>⚡ Generator Faktura - NextGenSolutions</h1>
+            
+            <div class="controls">
+                <select id="lang" onchange="changeLang()">
+                    <option value="bs">🇧🇦 Bosanski</option>
+                    <option value="en">🇬🇧 English</option>
+                </select>
+                <button class="secondary" onclick="saveJSON()">📥 Eksportuj JSON</button>
+                <button onclick="document.getElementById('loadFile').click()">📤 Importuj JSON</button>
+                <button onclick="resetForm()">📄 Novi</button>
+                <button class="secondary" onclick="downloadHTML()">💾 Preuzmi HTML</button>
+                <input type="file" id="loadFile" class="hidden" accept=".json" onchange="loadJSON(event)">
+            </div>
+        </div>
+
+        <div class="grid2">
+            <div class="app-box">
+                <h3>Logo</h3>
+                <input type="file" id="logoInput" accept="image/*" onchange="uploadLogo(event)">
+                <button class="danger" onclick="removeLogo()" style="margin-top: 10px;">Ukloni</button>
+                <div id="logoPreview"></div>
+            </div>
+
+            <div class="app-box">
+                <h3>Osnovni podaci</h3>
+                <label>Tip</label>
+                <select id="docType" onchange="render()">
+                    <option>Faktura</option>
+                    <option>Ponuda</option>
+                    <option>Narudžbenica</option>
+                </select>
+                <div class="grid2" style="margin-top: 10px;">
+                    <div>
+                        <label>Broj</label>
+                        <input type="text" id="docNum" value="001/2025" oninput="render()">
+                    </div>
+                    <div>
+                        <label>BF (samo faktura)</label>
+                        <input type="text" id="bf" placeholder="Opcionalno" oninput="render()">
+                    </div>
+                </div>
+                <div class="grid2" style="margin-top: 10px;">
+                    <div>
+                        <label>Datum izdavanja</label>
+                        <input type="date" id="dateIssue" value="2025-12-08" oninput="render()">
+                    </div>
+                    <div>
+                        <label>Datum isporuke</label>
+                        <input type="date" id="dateDelivery" value="2025-12-08" oninput="render()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid2">
+            <div class="app-box">
+                <h3>Kupac</h3>
+                <label>Naziv</label>
+                <input type="text" id="buyerName" placeholder="Naziv kupca" oninput="render()">
+                <label>Kontakt osoba</label>
+                <input type="text" id="buyerContact" placeholder="Ime i prezime" oninput="render()">
+                <label>Adresa</label>
+                <input type="text" id="buyerAddr" placeholder="Ulica i broj" oninput="render()">
+                <div class="grid2" style="margin-top: 10px;">
+                    <div>
+                        <label>Grad</label>
+                        <input type="text" id="buyerCity" placeholder="Grad" oninput="render()">
+                    </div>
+                    <div>
+                        <label>Država</label>
+                        <input type="text" id="buyerCountry" placeholder="Država" oninput="render()">
+                    </div>
+                </div>
+                <label>PDV broj</label>
+                <input type="text" id="buyerVAT" placeholder="Opcionalno" oninput="render()">
+            </div>
+
+            <div class="app-box">
+                <h3>Plaćanje</h3>
+                <label>Mjesto</label>
+                <input type="text" id="place" value="Sarajevo" oninput="render()">
+                <label>Uvjeti plaćanja</label>
+                <input type="text" id="payTerms" placeholder="Npr. Rok 15 dana" oninput="render()">
+                <label>Valuta</label>
+                <input type="text" id="curr" value="KM" oninput="render()">
+            </div>
+        </div>
+
+        <div class="app-box">
+            <h3>Stavke</h3>
+            <div id="items"></div>
+            <button onclick="addItem()">+ Dodaj stavku</button>
+        </div>
+
+        <div class="app-box">
+            <h2 style="text-align: center; margin-bottom: 20px;">📄 Pregled fakture</h2>
+            <div id="preview"></div>
+        </div>
+    </div>
+
+    <script>
+        var lang = 'bs';
+        var t = {
+            bs: {num:'Broj',bf:'BF',date:'Datum izdavanja',delivery:'Datum isporuke',seller:'Prodavač',buyer:'Kupac',contact:'Kontakt',tax:'JIB',vat:'PDV',item:'Opis',qty:'Kol.',unit:'J.mj.',price:'Cijena',total:'Ukupno',subtotal:'Ukupno bez PDV',vatAmt:'PDV 17%',grand:'UKUPNO ZA PLAĆANJE',words:'Iznos slovima',terms:'Uvjeti plaćanja',bank:'Račun možete platiti na broj računa 134 105 112 002 8469, otvoren kod Asa banke.',footer:'Privredni subjekat registrovan je kod Općinskog suda u Sarajevu sa matičnim brojem 65–01–0803-25.'},
+            en: {num:'Number',bf:'BF',date:'Issue date',delivery:'Delivery date',seller:'Seller',buyer:'Buyer',contact:'Contact',tax:'Tax ID',vat:'VAT',item:'Description',qty:'Qty',unit:'Unit',price:'Price',total:'Total',subtotal:'Subtotal',vatAmt:'VAT 17%',grand:'TOTAL AMOUNT DUE',words:'Amount in words',terms:'Payment terms',bank:'Payment can be made to account 134 105 112 002 8469, opened at Asa Bank.',footer:'Business entity registered with the Municipal Court in Sarajevo under registration number 65–01–0803-25.'}
+        };
+
+        function addItem(n,q,u,p) {
+            var d = document.createElement('div');
+            d.className = 'item-row';
+            d.innerHTML = '<input type="text" placeholder="Naziv" value="'+(n||'')+'" oninput="render()">'+
+                '<input type="number" value="'+(q||1)+'" step="any" oninput="render()">'+
+                '<input type="text" value="'+(u||'kom')+'" oninput="render()">'+
+                '<input type="number" value="'+(p||0)+'" step="0.01" oninput="render()">'+
+                '<button class="danger" onclick="this.parentElement.remove();render()">✖</button>';
+            document.getElementById('items').appendChild(d);
+            render();
+        }
+
+        function render() {
+            var txt = t[lang];
+            var logo = localStorage.getItem('invoiceLogo');
+            var sub = 0, rows = '';
+            
+            document.querySelectorAll('.item-row').forEach(function(row) {
+                var inp = row.querySelectorAll('input');
+                var name = inp[0].value;
+                var qty = parseFloat(inp[1].value) || 0;
+                var unit = inp[2].value;
+                var price = parseFloat(inp[3].value) || 0;
+                var tot = qty * price;
+                sub += tot;
+                rows += '<tr><td>'+name+'</td><td class="text-right">'+qty+'</td><td>'+unit+'</td>'+
+                    '<td class="text-right">'+price.toFixed(2)+'</td><td class="text-right"><strong>'+tot.toFixed(2)+'</strong></td></tr>';
+            });
+            
+            var vat = sub * 0.17;
+            var grand = sub + vat;
+            var words = numToWords(grand);
+            
+            var city = document.getElementById('buyerCity').value;
+            var country = document.getElementById('buyerCountry').value;
+            var location = '';
+            if (city || country) location = (city||'') + (city&&country?', ':'') + (country||'');
+            
+            var docType = document.getElementById('docType').value;
+            var bfNum = document.getElementById('bf').value;
+            
+            var html = '<div class="invoice">'+
+                '<div class="invoice-header">'+
+                '<div>'+(logo?'<img class="invoice-logo" src="'+logo+'">':'<div style="color:#9ca3af;">Logo</div>')+'</div>'+
+                '<div class="invoice-title">'+
+                '<h1>'+docType.toUpperCase()+'</h1>'+
+                '<div class="invoice-meta">'+txt.num+': <strong>'+document.getElementById('docNum').value+'</strong></div>';
+            
+            if (docType === 'Faktura' && bfNum) {
+                html += '<div class="invoice-meta">'+txt.bf+': <strong>'+bfNum+'</strong></div>';
+            }
+            
+            html += '<div class="invoice-meta">'+txt.date+': '+document.getElementById('dateIssue').value+'</div>'+
+                '<div class="invoice-meta">'+txt.delivery+': '+document.getElementById('dateDelivery').value+'</div>'+
+                '</div></div>'+
+                '<div class="invoice-parties">'+
+                '<div class="party-box">'+
+                '<div class="party-label">'+txt.seller+'</div>'+
+                '<div class="party-name">NextGenSolutions d.o.o.</div>'+
+                '<div class="party-details">'+
+                'Fra Andjela Zvizdovica 1 (PC Unitic)<br>'+
+                'Sarajevo, Bosna i Hercegovina<br>'+
+                txt.tax+': 4203549920007'+
+                '</div></div>'+
+                '<div class="party-box">'+
+                '<div class="party-label">'+txt.buyer+'</div>'+
+                '<div class="party-name">'+(document.getElementById('buyerName').value||'—')+'</div>'+
+                '<div class="party-details">';
+            
+            if (document.getElementById('buyerContact').value) {
+                html += txt.contact+': '+document.getElementById('buyerContact').value+'<br>';
+            }
+            html += (document.getElementById('buyerAddr').value||'')+'<br>'+
+                (location?location+'<br>':'')+
+                (document.getElementById('buyerVAT').value?txt.vat+': '+document.getElementById('buyerVAT').value:'')+'</div></div></div>'+
+                '<table class="invoice-table">'+
+                '<thead><tr><th>'+txt.item+'</th><th class="text-right">'+txt.qty+'</th><th>'+txt.unit+'</th>'+
+                '<th class="text-right">'+txt.price+'</th><th class="text-right">'+txt.total+'</th></tr></thead>'+
+                '<tbody>'+rows+'</tbody></table>'+
+                '<div class="invoice-totals">'+
+                '<div class="total-row subtotal"><span>'+txt.subtotal+'</span><span>'+sub.toFixed(2)+' '+document.getElementById('curr').value+'</span></div>'+
+                '<div class="total-row vat"><span>'+txt.vatAmt+'</span><span>'+vat.toFixed(2)+' '+document.getElementById('curr').value+'</span></div>'+
+                '<div class="total-row grand"><span>'+txt.grand+'</span><span>'+grand.toFixed(2)+' '+document.getElementById('curr').value+'</span></div>'+
+                '</div>'+
+                '<div class="invoice-notes">'+
+                '<div class="label">'+txt.words+'</div>'+
+                '<div class="content">'+words+' '+document.getElementById('curr').value+'</div>'+
+                '</div>';
+            
+            if (document.getElementById('payTerms').value) {
+                html += '<div style="margin-top: 20px; font-size: 14px; color: #4b5563;">'+
+                    '<strong>'+txt.terms+':</strong> '+document.getElementById('payTerms').value+'</div>';
+            }
+            
+            html += '<div class="payment-box">'+
+                '<div class="label">Informacije o plaćanju</div>'+
+                '<div class="info">'+txt.bank+'</div>'+
+                '</div>'+
+                '<div class="invoice-footer">'+txt.footer+'</div>'+
+                '</div>';
+            
+            document.getElementById('preview').innerHTML = html;
+        }
+
+        function numToWords(n) {
+            if(n===0)return lang==='bs'?'nula':'zero';
+            var w=Math.floor(n),d=Math.round((n-w)*100),r='';
+            if(lang==='bs'){
+                var u=['','jedan','dva','tri','četiri','pet','šest','sedam','osam','devet'];
+                var te=['','deset','dvadeset','trideset','četrdeset','pedeset','šezdeset','sedamdeset','osamdeset','devedeset'];
+                var tn=['deset','jedanaest','dvanaest','trinaest','četrnaest','petnaest','šesnaest','sedamnaest','osamnaest','devetnaest'];
+                var h=['','sto','dvjesto','tristo','četiristo','petsto','šeststo','sedamsto','osamsto','devetsto'];
+                if(w>=1000){var k=Math.floor(w/1000);r+=(k===1?'jedna hiljada ':u[k]+' hiljade ');w%=1000;}
+                if(w>=100){r+=h[Math.floor(w/100)]+' ';w%=100;}
+                if(w>=20){r+=te[Math.floor(w/10)]+' ';w%=10;}
+                else if(w>=10){r+=tn[w-10]+' ';w=0;}
+                if(w>0)r+=u[w]+' ';
+                if(d>0)r+='i '+d+'/100';
+            }else{
+                var ue=['','one','two','three','four','five','six','seven','eight','nine'];
+                var tee=['','ten','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+                var tne=['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+                if(w>=1000){var ke=Math.floor(w/1000);r+=ue[ke]+' thousand ';w%=1000;}
+                if(w>=100){r+=ue[Math.floor(w/100)]+' hundred ';w%=100;}
+                if(w>=20){r+=tee[Math.floor(w/10)]+' ';w%=10;}
+                else if(w>=10){r+=tne[w-10]+' ';w=0;}
+                if(w>0)r+=ue[w]+' ';
+                if(d>0)r+='and '+d+'/100';
+            }
+            return r.trim();
+        }
+
+        function downloadHTML() {
+            var content = document.getElementById('preview').innerHTML;
+            var styles = document.querySelector('style').textContent;
+            var invoiceStyles = styles.substring(styles.indexOf('/* FAKTURA'));
+            var full = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+
+                document.getElementById('docType').value+' '+document.getElementById('docNum').value+
+                '</title><style>body{margin:0;padding:40px;background:#f5f5f5;}'+invoiceStyles+
+                '@media print{body{background:white;padding:0;}.invoice{box-shadow:none;padding:40px;}}</style></head><body>'+
+                content+'</body></html>';
+            var b = new Blob([full], {type:'text/html'});
+            var u = URL.createObjectURL(b);
+            var a = document.createElement('a');
+            a.href = u;
+            a.download = document.getElementById('docType').value+'_'+document.getElementById('docNum').value.replace(/\//g,'_')+'.html';
+            a.click();
+            URL.revokeObjectURL(u);
+            alert('✅ HTML preuzet!');
+        }
+
+        function saveJSON() {
+            var items = [];
+            document.querySelectorAll('.item-row').forEach(function(row) {
+                var inp = row.querySelectorAll('input');
+                items.push({name:inp[0].value,qty:parseFloat(inp[1].value),unit:inp[2].value,price:parseFloat(inp[3].value)});
+            });
+            var data = {
+                lang:lang,type:document.getElementById('docType').value,num:document.getElementById('docNum').value,
+                bf:document.getElementById('bf').value,dateIssue:document.getElementById('dateIssue').value,
+                dateDelivery:document.getElementById('dateDelivery').value,place:document.getElementById('place').value,
+                terms:document.getElementById('payTerms').value,curr:document.getElementById('curr').value,
+                buyer:{name:document.getElementById('buyerName').value,contact:document.getElementById('buyerContact').value,
+                addr:document.getElementById('buyerAddr').value,city:document.getElementById('buyerCity').value,
+                country:document.getElementById('buyerCountry').value,vat:document.getElementById('buyerVAT').value},
+                items:items
+            };
+            var b = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+            var u = URL.createObjectURL(b);
+            var a = document.createElement('a');
+            a.href = u;
+            a.download = data.type+'_'+data.num.replace(/\//g,'_')+'.json';
+            a.click();
+            URL.revokeObjectURL(u);
+        }
+
+        function loadJSON(e) {
+            var f = e.target.files[0];
+            if(!f) return;
+            var r = new FileReader();
+            r.onload = function(ev) {
+                try {
+                    var d = JSON.parse(ev.target.result);
+                    lang = d.lang||'bs';
+                    document.getElementById('lang').value = lang;
+                    document.getElementById('docType').value = d.type||'Faktura';
+                    document.getElementById('docNum').value = d.num||'';
+                    document.getElementById('bf').value = d.bf||'';
+                    document.getElementById('dateIssue').value = d.dateIssue||'';
+                    document.getElementById('dateDelivery').value = d.dateDelivery||'';
+                    document.getElementById('place').value = d.place||'Sarajevo';
+                    document.getElementById('payTerms').value = d.terms||'';
+                    document.getElementById('curr').value = d.curr||'KM';
+                    document.getElementById('buyerName').value = d.buyer.name||'';
+                    document.getElementById('buyerContact').value = d.buyer.contact||'';
+                    document.getElementById('buyerAddr').value = d.buyer.addr||'';
+                    document.getElementById('buyerCity').value = d.buyer.city||'';
+                    document.getElementById('buyerCountry').value = d.buyer.country||'';
+                    document.getElementById('buyerVAT').value = d.buyer.vat||'';
+                    document.getElementById('items').innerHTML = '';
+                    if(d.items && d.items.length>0) {
+                        d.items.forEach(function(it) { addItem(it.name,it.qty,it.unit,it.price); });
+                    } else {
+                        addItem();
+                    }
+                    alert('✅ Učitano!');
+                } catch(err) {
+                    alert('❌ Greška: '+err.message);
+                }
+            };
+            r.readAsText(f);
+        }
+
+        function resetForm() {
+            if(confirm('Novi dokument?')) {
+                ['buyerName','buyerContact','buyerAddr','buyerCity','buyerCountry','buyerVAT','payTerms','bf'].forEach(function(id) {
+                    document.getElementById(id).value = '';
+                });
+                document.getElementById('items').innerHTML = '';
+                addItem();
+            }
+        }
+
+        function removeLogo() {
+            localStorage.removeItem('invoiceLogo');
+            document.getElementById('logoPreview').innerHTML = '';
+            render();
+        }
+
+        function uploadLogo(e) {
+            var f = e.target.files[0];
+            if(f) {
+                var r = new FileReader();
+                r.onload = function(ev) {
+                    localStorage.setItem('invoiceLogo', ev.target.result);
+                    document.getElementById('logoPreview').innerHTML = '<img src="'+ev.target.result+'" style="max-width:150px;margin-top:10px;">';
+                    render();
+                };
+                r.readAsDataURL(f);
+            }
+        }
+
+        function changeLang() {
+            lang = document.getElementById('lang').value;
+            render();
+        }
+
+        var logo = localStorage.getItem('invoiceLogo');
+        if(logo) document.getElementById('logoPreview').innerHTML = '<img src="'+logo+'" style="max-width:150px;margin-top:10px;">';
+        
+        addItem();
+        render();
+    </script>
+</body>
+</html>
