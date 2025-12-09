@@ -1,7 +1,7 @@
 var lang = 'bs';
 var t = {
-    bs: {num:'Broj',bf:'BF',date:'Datum izdavanja',delivery:'Datum isporuke',seller:'Prodavač',buyer:'Kupac',supplier:'Dobavljač',orderer:'Naručilac',contact:'Kontakt',tax:'JIB',vat:'PDV',item:'Opis',qty:'Kol.',unit:'J.mj.',price:'Cijena',total:'Ukupno',subtotal:'Ukupno bez PDV',vatAmt:'PDV',grand:'UKUPNO ZA PLAĆANJE',words:'Iznos slovima',terms:'Uvjeti plaćanja',bank:'Račun možete platiti na broj računa 134 105 112 002 8469, otvoren kod Asa banke.',footer:'Privredni subjekat registrovan je kod Općinskog suda u Sarajevu sa matičnim brojem 65–01–0803-25.',itemNum:'R.br.',discount:'Popust%',vatRate:'PDV%',email:'E-mail'},
-    en: {num:'Number',bf:'BF',date:'Issue date',delivery:'Delivery date',seller:'Seller',buyer:'Buyer',supplier:'Supplier',orderer:'Orderer',contact:'Contact',tax:'Tax ID',vat:'VAT',item:'Description',qty:'Qty',unit:'Unit',price:'Price',total:'Total',subtotal:'Subtotal',vatAmt:'VAT',grand:'TOTAL AMOUNT DUE',words:'Amount in words',terms:'Payment terms',bank:'Payment can be made to account 134 105 112 002 8469, opened at Asa Bank.',footer:'Business entity registered with the Municipal Court in Sarajevo under registration number 65–01–0803-25.',itemNum:'No.',discount:'Discount%',vatRate:'VAT%',email:'E-mail'}
+    bs: {num:'Broj',bf:'BF',date:'Datum izdavanja',delivery:'Datum isporuke',seller:'Prodavač',buyer:'Kupac',supplier:'Dobavljač',orderer:'Naručilac',contact:'Kontakt',tax:'JIB',vat:'PDV',item:'Opis',qty:'Kol.',unit:'J.mj.',price:'Cijena',total:'Ukupno',subtotal:'Ukupno bez PDV',vatAmt:'PDV',grand:'UKUPNO ZA PLAĆANJE',words:'Iznos slovima',terms:'Uvjeti plaćanja',bank:'Račun možete platiti na broj računa 134 105 112 002 8469, otvoren kod Asa banke.',footer:'Privredni subjekat registrovan je kod Općinskog suda u Sarajevu sa matičnim brojem 65–01–0803-25.',itemNum:'R.br.',discount:'Popust%',vatRate:'PDV%',email:'E-mail',electronic:'Dokument je izdat elektronski i važeći je bez pečata i potpisa.'},
+    en: {num:'Number',bf:'BF',date:'Issue date',delivery:'Delivery date',seller:'Seller',buyer:'Buyer',supplier:'Supplier',orderer:'Orderer',contact:'Contact',tax:'Tax ID',vat:'VAT',item:'Description',qty:'Qty',unit:'Unit',price:'Price',total:'Total',subtotal:'Subtotal',vatAmt:'VAT',grand:'TOTAL AMOUNT DUE',words:'Amount in words',terms:'Payment terms',bank:'Payment can be made to account 134 105 112 002 8469, opened at Asa Bank.',footer:'Business entity registered with the Municipal Court in Sarajevo under registration number 65–01–0803-25.',itemNum:'No.',discount:'Discount%',vatRate:'VAT%',email:'E-mail',electronic:'This document is issued electronically and is valid without seal and signature.'}
 };
 
 // FIKSNI LOGO - logo.png iz istog foldera
@@ -220,6 +220,37 @@ function handleVatChange(select) {
     render();
 }
 
+function validateRequiredFields() {
+    var docNum = document.getElementById('docNum').value.trim();
+    var buyerName = document.getElementById('buyerName').value.trim();
+    
+    var errors = [];
+    
+    if (!docNum) {
+        errors.push('Broj dokumenta je obavezan');
+    }
+    
+    if (!buyerName) {
+        errors.push('Naziv kupca je obavezan');
+    }
+    
+    // Provjeri da li postoji bar jedan artikal sa nazivom i cijenom
+    var hasValidItem = false;
+    document.querySelectorAll('.item-row').forEach(function(row) {
+        var textarea = row.querySelector('textarea');
+        var priceInput = row.querySelectorAll('input')[2]; // cijena je 3. input
+        if (textarea.value.trim() && parseFloat(priceInput.value) > 0) {
+            hasValidItem = true;
+        }
+    });
+    
+    if (!hasValidItem) {
+        errors.push('Minimalno jedan artikal mora imati naziv i cijenu');
+    }
+    
+    return errors;
+}
+
 function render() {
     var txt = t[lang];
     var sub = 0, totalVat = 0, rows = '';
@@ -406,6 +437,9 @@ function render() {
         '<div class="label">Informacije o plaćanju</div>'+
         '<div class="info">'+txt.bank+'</div>'+
         '</div>'+
+        '<div style="margin-top: 30px; text-align: center; font-size: 11px; color: #666; font-style: italic;">'+
+        txt.electronic+
+        '</div>'+
         '<div class="invoice-footer">'+txt.footer+'</div>'+
         '</div>';
 
@@ -441,14 +475,15 @@ function numToWords(n) {
 }
 
 function downloadHTML() {
-    var docNum = document.getElementById('docNum').value.trim();
-    if(!docNum) {
-        alert('❌ GREŠKA: Broj dokumenta mora biti popunjen prije eksporta!');
-        document.getElementById('docNum').focus();
+    // Validacija
+    var errors = validateRequiredFields();
+    if (errors.length > 0) {
+        alert('❌ GREŠKA:\n\n' + errors.join('\n'));
         return;
     }
 
     var docType = document.getElementById('docType').value;
+    var docNum = document.getElementById('docNum').value;
     var content = document.getElementById('preview').innerHTML;
 
     var full = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+
@@ -467,6 +502,13 @@ function downloadHTML() {
 }
 
 function saveJSON() {
+    // Validacija
+    var errors = validateRequiredFields();
+    if (errors.length > 0) {
+        alert('❌ GREŠKA:\n\n' + errors.join('\n'));
+        return;
+    }
+    
     var items = [];
     document.querySelectorAll('.item-row').forEach(function(row) {
         var textarea = row.querySelector('textarea');

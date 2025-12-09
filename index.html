@@ -26,12 +26,23 @@
 
         <div class="app-box">
             <h3>Osnovni podaci</h3>
-            <label>Tip</label>
-            <select id="docType" onchange="render()">
-                <option>Faktura</option>
-                <option>Ponuda</option>
-                <option>Narudžbenica</option>
-            </select>
+            <div class="grid2">
+                <div>
+                    <label>Tip</label>
+                    <select id="docType" onchange="render()">
+                        <option>Faktura</option>
+                        <option>Ponuda</option>
+                        <option>Narudžbenica</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Valuta</label>
+                    <select id="curr" onchange="render()">
+                        <option value="KM" selected>KM (Konvertibilna marka)</option>
+                        <option value="EUR">€ EUR (Euro)</option>
+                    </select>
+                </div>
+            </div>
             <div class="grid2" style="margin-top: 10px;">
                 <div>
                     <label>Broj *</label>
@@ -45,11 +56,11 @@
             <div class="grid2" style="margin-top: 10px;">
                 <div>
                     <label>Datum izdavanja</label>
-                    <input type="date" id="dateIssue" value="2025-12-08" oninput="render()">
+                    <input type="date" id="dateIssue" value="2025-12-09" oninput="render()">
                 </div>
                 <div>
                     <label>Datum isporuke</label>
-                    <input type="date" id="dateDelivery" value="2025-12-08" oninput="render()">
+                    <input type="date" id="dateDelivery" value="2025-12-09" oninput="render()">
                 </div>
             </div>
         </div>
@@ -110,16 +121,8 @@
 
         <div class="app-box">
             <h3>Plaćanje</h3>
-            <div class="grid2">
-                <div>
-                    <label>Mjesto</label>
-                    <input type="text" id="place" value="Sarajevo" oninput="render()">
-                </div>
-                <div>
-                    <label>Valuta</label>
-                    <input type="text" id="curr" value="KM" oninput="render()">
-                </div>
-            </div>
+            <label>Mjesto</label>
+            <input type="text" id="place" value="Sarajevo" oninput="render()">
             <label style="margin-top: 10px;">Uvjeti plaćanja</label>
             <input type="text" id="payTerms" placeholder="Npr. Rok 15 dana" oninput="render()">
         </div>
