@@ -1,8 +1,11 @@
 var lang = 'bs';
 var t = {
-    bs: {num:'Broj',bf:'BF',date:'Datum izdavanja',delivery:'Datum isporuke',seller:'Prodavač',buyer:'Kupac',contact:'Kontakt',tax:'JIB',vat:'PDV',item:'Opis',qty:'Kol.',unit:'J.mj.',price:'Cijena',total:'Ukupno',subtotal:'Ukupno bez PDV',vatAmt:'PDV',grand:'UKUPNO ZA PLAĆANJE',words:'Iznos slovima',terms:'Uvjeti plaćanja',bank:'Račun možete platiti na broj računa 134 105 112 002 8469, otvoren kod Asa banke.',footer:'Privredni subjekat registrovan je kod Općinskog suda u Sarajevu sa matičnim brojem 65–01–0803-25.',itemNum:'R.br.',discount:'Popust%',vatRate:'PDV%',email:'E-mail'},
-    en: {num:'Number',bf:'BF',date:'Issue date',delivery:'Delivery date',seller:'Seller',buyer:'Buyer',contact:'Contact',tax:'Tax ID',vat:'VAT',item:'Description',qty:'Qty',unit:'Unit',price:'Price',total:'Total',subtotal:'Subtotal',vatAmt:'VAT',grand:'TOTAL AMOUNT DUE',words:'Amount in words',terms:'Payment terms',bank:'Payment can be made to account 134 105 112 002 8469, opened at Asa Bank.',footer:'Business entity registered with the Municipal Court in Sarajevo under registration number 65–01–0803-25.',itemNum:'No.',discount:'Discount%',vatRate:'VAT%',email:'E-mail'}
+    bs: {num:'Broj',bf:'BF',date:'Datum izdavanja',delivery:'Datum isporuke',seller:'Prodavač',buyer:'Kupac',supplier:'Dobavljač',orderer:'Naručilac',contact:'Kontakt',tax:'JIB',vat:'PDV',item:'Opis',qty:'Kol.',unit:'J.mj.',price:'Cijena',total:'Ukupno',subtotal:'Ukupno bez PDV',vatAmt:'PDV',grand:'UKUPNO ZA PLAĆANJE',words:'Iznos slovima',terms:'Uvjeti plaćanja',bank:'Račun možete platiti na broj računa 134 105 112 002 8469, otvoren kod Asa banke.',footer:'Privredni subjekat registrovan je kod Općinskog suda u Sarajevu sa matičnim brojem 65–01–0803-25.',itemNum:'R.br.',discount:'Popust%',vatRate:'PDV%',email:'E-mail'},
+    en: {num:'Number',bf:'BF',date:'Issue date',delivery:'Delivery date',seller:'Seller',buyer:'Buyer',supplier:'Supplier',orderer:'Orderer',contact:'Contact',tax:'Tax ID',vat:'VAT',item:'Description',qty:'Qty',unit:'Unit',price:'Price',total:'Total',subtotal:'Subtotal',vatAmt:'VAT',grand:'TOTAL AMOUNT DUE',words:'Amount in words',terms:'Payment terms',bank:'Payment can be made to account 134 105 112 002 8469, opened at Asa Bank.',footer:'Business entity registered with the Municipal Court in Sarajevo under registration number 65–01–0803-25.',itemNum:'No.',discount:'Discount%',vatRate:'VAT%',email:'E-mail'}
 };
+
+// FIKSNI LOGO - logo.png iz istog foldera
+var logoPath = 'logo.png';
 
 // EMBEDDED CSS ZA EXPORT
 var invoiceCSS = `.invoice { 
@@ -219,7 +222,6 @@ function handleVatChange(select) {
 
 function render() {
     var txt = t[lang];
-    var logo = localStorage.getItem('invoiceLogo');
     var sub = 0, totalVat = 0, rows = '';
     var itemNum = 1;
 
@@ -263,23 +265,70 @@ function render() {
     var grand = sub + totalVat;
     var words = numToWords(grand);
 
-    var sellerCity = document.getElementById('sellerCity').value;
-    var sellerCountry = document.getElementById('sellerCountry').value;
-    var sellerLocation = '';
-    if (sellerCity || sellerCountry) sellerLocation = (sellerCity||'') + (sellerCity&&sellerCountry?', ':'') + (sellerCountry||'');
-
-    var buyerCity = document.getElementById('buyerCity').value;
-    var buyerCountry = document.getElementById('buyerCountry').value;
-    var buyerLocation = '';
-    if (buyerCity || buyerCountry) buyerLocation = (buyerCity||'') + (buyerCity&&buyerCountry?', ':'') + (buyerCountry||'');
-
     var docType = document.getElementById('docType').value;
     var bfNum = document.getElementById('bf').value;
     var docNum = document.getElementById('docNum').value;
 
+    // LOGIKA ZA NARUDŽBENICU - OBRNUTO
+    var isNarudzbenica = (docType === 'Narudžbenica');
+    
+    var party1Label, party2Label;
+    var party1Name, party1Contact, party1Email, party1Addr, party1City, party1Country, party1JIB, party1VAT;
+    var party2Name, party2Contact, party2Email, party2Addr, party2City, party2Country, party2JIB, party2VAT;
+
+    if (isNarudzbenica) {
+        // Za narudžbenicu: NextGen je Naručilac (lijevo), unosi se Dobavljač (desno)
+        party1Label = txt.orderer || 'Naručilac';
+        party1Name = 'NextGenSolutions d.o.o. Sarajevo';
+        party1Contact = 'Nedim Fejzić';
+        party1Email = 'info@nextgensolutions.ba';
+        party1Addr = 'Fra Andjela Zvizdovica 1 (PC Unitic)';
+        party1City = 'Sarajevo';
+        party1Country = 'Bosna i Hercegovina';
+        party1JIB = '4203549920007';
+        party1VAT = '203549920007';
+
+        party2Label = txt.supplier || 'Dobavljač';
+        party2Name = document.getElementById('buyerName').value;
+        party2Contact = document.getElementById('buyerContact').value;
+        party2Email = document.getElementById('buyerEmail').value;
+        party2Addr = document.getElementById('buyerAddr').value;
+        party2City = document.getElementById('buyerCity').value;
+        party2Country = document.getElementById('buyerCountry').value;
+        party2JIB = document.getElementById('buyerJIB').value;
+        party2VAT = document.getElementById('buyerVAT').value;
+    } else {
+        // Za fakturu/ponudu: normalna logika - Prodavač (NextGen) / Kupac
+        party1Label = txt.seller;
+        party1Name = document.getElementById('sellerName').value;
+        party1Contact = document.getElementById('sellerContact').value;
+        party1Email = document.getElementById('sellerEmail').value;
+        party1Addr = document.getElementById('sellerAddr').value;
+        party1City = document.getElementById('sellerCity').value;
+        party1Country = document.getElementById('sellerCountry').value;
+        party1JIB = document.getElementById('sellerJIB').value;
+        party1VAT = document.getElementById('sellerVAT').value;
+
+        party2Label = txt.buyer;
+        party2Name = document.getElementById('buyerName').value;
+        party2Contact = document.getElementById('buyerContact').value;
+        party2Email = document.getElementById('buyerEmail').value;
+        party2Addr = document.getElementById('buyerAddr').value;
+        party2City = document.getElementById('buyerCity').value;
+        party2Country = document.getElementById('buyerCountry').value;
+        party2JIB = document.getElementById('buyerJIB').value;
+        party2VAT = document.getElementById('buyerVAT').value;
+    }
+
+    var party1Location = '';
+    if (party1City || party1Country) party1Location = (party1City||'') + (party1City&&party1Country?', ':'') + (party1Country||'');
+
+    var party2Location = '';
+    if (party2City || party2Country) party2Location = (party2City||'') + (party2City&&party2Country?', ':'') + (party2Country||'');
+
     var html = '<div class="invoice">'+
         '<div class="invoice-header">'+
-        '<div>'+(logo?'<img class="invoice-logo" src="'+logo+'">':'<div style="color:#9ca3af;">Logo</div>')+'</div>'+
+        '<div><img class="invoice-logo" src="'+logoPath+'"></div>'+
         '<div class="invoice-title">'+
         '<h1>'+docType.toUpperCase()+'</h1>'+
         '<div class="invoice-meta">'+txt.num+': <strong>'+(docNum||'—')+'</strong></div>';
@@ -293,37 +342,37 @@ function render() {
         '</div></div>'+
         '<div class="invoice-parties">'+
         '<div class="party-box">'+
-        '<div class="party-label">'+txt.seller+'</div>'+
-        '<div class="party-name">'+document.getElementById('sellerName').value+'</div>'+
+        '<div class="party-label">'+party1Label+'</div>'+
+        '<div class="party-name">'+party1Name+'</div>'+
         '<div class="party-details">';
 
-    if (document.getElementById('sellerContact').value) {
-        html += txt.contact+': '+document.getElementById('sellerContact').value+'<br>';
+    if (party1Contact) {
+        html += txt.contact+': '+party1Contact+'<br>';
     }
-    if (document.getElementById('sellerEmail').value) {
-        html += txt.email+': '+document.getElementById('sellerEmail').value+'<br>';
+    if (party1Email) {
+        html += txt.email+': '+party1Email+'<br>';
     }
-    html += document.getElementById('sellerAddr').value+'<br>'+
-        (sellerLocation?sellerLocation+'<br>':'')+
-        (document.getElementById('sellerJIB').value?txt.tax+': '+document.getElementById('sellerJIB').value+'<br>':'')+
-        (document.getElementById('sellerVAT').value?txt.vat+': '+document.getElementById('sellerVAT').value:'');
+    html += party1Addr+'<br>'+
+        (party1Location?party1Location+'<br>':'')+
+        (party1JIB?txt.tax+': '+party1JIB+'<br>':'')+
+        (party1VAT?txt.vat+': '+party1VAT:'');
 
     html += '</div></div>'+
         '<div class="party-box">'+
-        '<div class="party-label">'+txt.buyer+'</div>'+
-        '<div class="party-name">'+(document.getElementById('buyerName').value||'—')+'</div>'+
+        '<div class="party-label">'+party2Label+'</div>'+
+        '<div class="party-name">'+(party2Name||'—')+'</div>'+
         '<div class="party-details">';
 
-    if (document.getElementById('buyerContact').value) {
-        html += txt.contact+': '+document.getElementById('buyerContact').value+'<br>';
+    if (party2Contact) {
+        html += txt.contact+': '+party2Contact+'<br>';
     }
-    if (document.getElementById('buyerEmail').value) {
-        html += txt.email+': '+document.getElementById('buyerEmail').value+'<br>';
+    if (party2Email) {
+        html += txt.email+': '+party2Email+'<br>';
     }
-    html += (document.getElementById('buyerAddr').value||'')+'<br>'+
-        (buyerLocation?buyerLocation+'<br>':'')+
-        (document.getElementById('buyerJIB').value?txt.tax+': '+document.getElementById('buyerJIB').value+'<br>':'')+
-        (document.getElementById('buyerVAT').value?txt.vat+': '+document.getElementById('buyerVAT').value:'');
+    html += (party2Addr||'')+'<br>'+
+        (party2Location?party2Location+'<br>':'')+
+        (party2JIB?txt.tax+': '+party2JIB+'<br>':'')+
+        (party2VAT?txt.vat+': '+party2VAT:'');
 
     html += '</div></div></div>'+
         '<table class="invoice-table">'+
@@ -432,6 +481,7 @@ function saveJSON() {
             vatRate:parseFloat(sel.value)
         });
     });
+    
     var data = {
         lang:lang,type:document.getElementById('docType').value,num:document.getElementById('docNum').value,
         bf:document.getElementById('bf').value,dateIssue:document.getElementById('dateIssue').value,
@@ -447,14 +497,47 @@ function saveJSON() {
         jib:document.getElementById('buyerJIB').value,vat:document.getElementById('buyerVAT').value},
         items:items
     };
+    
+    // FORMATIRANJE IMENA FAJLA: NazivKupca(10 char)fakt/pon/narDDMMYYYY-brojdokumenta
+    var buyerName = document.getElementById('buyerName').value || 'DRAFT';
+    var docType = document.getElementById('docType').value;
+    
+    // Odredi prefiks prema tipu dokumenta
+    var docPrefix = '';
+    if (docType === 'Faktura') {
+        docPrefix = 'fakt';
+    } else if (docType === 'Ponuda') {
+        docPrefix = 'pon';
+    } else if (docType === 'Narudžbenica') {
+        docPrefix = 'nar';
+    }
+    
+    // Uzmi prvih 10 karaktera naziva kupca, ukloni razmake i specijalne znakove
+    var buyerShort = buyerName
+        .replace(/[^a-zA-Z0-9\u0080-\uFFFF]/g, '') // Ukloni sve osim slova i brojeva (uključujući ćčšđž)
+        .substring(0, 10);
+    
+    // Formatiraj datum iz dateIssue (YYYY-MM-DD) u DDMMYYYY
+    var dateIssue = document.getElementById('dateIssue').value;
+    var dateParts = dateIssue.split('-');
+    var dateFormatted = dateParts[2] + dateParts[1] + dateParts[0]; // DDMMYYYY
+    
+    // Broj dokumenta
+    var docNum = data.num || 'DRAFT';
+    var docNumClean = docNum.replace(/\//g, '-');
+    
+    // Konačno ime: NazivKupca(10)fakt/pon/narDDMMYYYY-brojdokumenta.json
+    var filename = buyerShort + docPrefix + dateFormatted + '-' + docNumClean + '.json';
+    
     var b = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
     var u = URL.createObjectURL(b);
     var a = document.createElement('a');
     a.href = u;
-    var filename = data.type+'_'+(data.num||'DRAFT').replace(/\//g,'_')+'.json';
     a.download = filename;
     a.click();
     URL.revokeObjectURL(u);
+    
+    alert('✅ JSON sačuvan: ' + filename);
 }
 
 function loadJSON(e) {
@@ -521,33 +604,11 @@ function resetForm() {
     }
 }
 
-function removeLogo() {
-    localStorage.removeItem('invoiceLogo');
-    document.getElementById('logoPreview').innerHTML = '';
-    render();
-}
-
-function uploadLogo(e) {
-    var f = e.target.files[0];
-    if(f) {
-        var r = new FileReader();
-        r.onload = function(ev) {
-            localStorage.setItem('invoiceLogo', ev.target.result);
-            document.getElementById('logoPreview').innerHTML = '<img src="'+ev.target.result+'" style="max-width:210px;margin-top:10px;">';
-            render();
-        };
-        r.readAsDataURL(f);
-    }
-}
-
 function changeLang() {
     lang = document.getElementById('lang').value;
     render();
 }
 
-// INICIJALIZACIJA - UČITAJ LOGO I DODAJ PRVU STAVKU
-var logo = localStorage.getItem('invoiceLogo');
-if(logo) document.getElementById('logoPreview').innerHTML = '<img src="'+logo+'" style="max-width:210px;margin-top:10px;">';
-
+// INICIJALIZACIJA - DODAJ PRVU STAVKU
 addItem();
 render();

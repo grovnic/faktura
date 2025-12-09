@@ -24,41 +24,32 @@
             </div>
         </div>
 
-        <div class="grid2">
-            <div class="app-box">
-                <h3>Logo</h3>
-                <input type="file" id="logoInput" accept="image/*" onchange="uploadLogo(event)">
-                <button class="danger" onclick="removeLogo()" style="margin-top: 10px;">Ukloni</button>
-                <div id="logoPreview"></div>
-            </div>
-
-            <div class="app-box">
-                <h3>Osnovni podaci</h3>
-                <label>Tip</label>
-                <select id="docType" onchange="render()">
-                    <option>Faktura</option>
-                    <option>Ponuda</option>
-                    <option>Narudžbenica</option>
-                </select>
-                <div class="grid2" style="margin-top: 10px;">
-                    <div>
-                        <label>Broj *</label>
-                        <input type="text" id="docNum" placeholder="Obavezno" oninput="render()">
-                    </div>
-                    <div>
-                        <label>BF (samo faktura)</label>
-                        <input type="text" id="bf" placeholder="Opcionalno" oninput="render()">
-                    </div>
+        <div class="app-box">
+            <h3>Osnovni podaci</h3>
+            <label>Tip</label>
+            <select id="docType" onchange="render()">
+                <option>Faktura</option>
+                <option>Ponuda</option>
+                <option>Narudžbenica</option>
+            </select>
+            <div class="grid2" style="margin-top: 10px;">
+                <div>
+                    <label>Broj *</label>
+                    <input type="text" id="docNum" placeholder="Obavezno" oninput="render()">
                 </div>
-                <div class="grid2" style="margin-top: 10px;">
-                    <div>
-                        <label>Datum izdavanja</label>
-                        <input type="date" id="dateIssue" value="2025-12-08" oninput="render()">
-                    </div>
-                    <div>
-                        <label>Datum isporuke</label>
-                        <input type="date" id="dateDelivery" value="2025-12-08" oninput="render()">
-                    </div>
+                <div>
+                    <label>BF (samo faktura)</label>
+                    <input type="text" id="bf" placeholder="Opcionalno" oninput="render()">
+                </div>
+            </div>
+            <div class="grid2" style="margin-top: 10px;">
+                <div>
+                    <label>Datum izdavanja</label>
+                    <input type="date" id="dateIssue" value="2025-12-08" oninput="render()">
+                </div>
+                <div>
+                    <label>Datum isporuke</label>
+                    <input type="date" id="dateDelivery" value="2025-12-08" oninput="render()">
                 </div>
             </div>
         </div>
@@ -135,7 +126,6 @@
 
         <div class="app-box">
             <h3>Stavke</h3>
-            <!-- Header za kolone stavki -->
             <div class="item-header">
                 <div>R.br.</div>
                 <div>Naziv</div>
