@@ -1,0 +1,404 @@
+var lang = 'bs';
+var t = {
+    bs: {num:'Broj',bf:'BF',date:'Datum izdavanja',delivery:'Datum isporuke',seller:'Prodavač',buyer:'Kupac',contact:'Kontakt',tax:'JIB',vat:'PDV',item:'Opis',qty:'Kol.',unit:'J.mj.',price:'Cijena',total:'Ukupno',subtotal:'Ukupno bez PDV',vatAmt:'PDV',grand:'UKUPNO ZA PLAĆANJE',words:'Iznos slovima',terms:'Uvjeti plaćanja',bank:'Račun možete platiti na broj računa 134 105 112 002 8469, otvoren kod Asa banke.',footer:'Privredni subjekat registrovan je kod Općinskog suda u Sarajevu sa matičnim brojem 65–01–0803-25.',itemNum:'R.br.',discount:'Popust%',vatRate:'PDV%',email:'E-mail'},
+    en: {num:'Number',bf:'BF',date:'Issue date',delivery:'Delivery date',seller:'Seller',buyer:'Buyer',contact:'Contact',tax:'Tax ID',vat:'VAT',item:'Description',qty:'Qty',unit:'Unit',price:'Price',total:'Total',subtotal:'Subtotal',vatAmt:'VAT',grand:'TOTAL AMOUNT DUE',words:'Amount in words',terms:'Payment terms',bank:'Payment can be made to account 134 105 112 002 8469, opened at Asa Bank.',footer:'Business entity registered with the Municipal Court in Sarajevo under registration number 65–01–0803-25.',itemNum:'No.',discount:'Discount%',vatRate:'VAT%',email:'E-mail'}
+};
+
+function addItem(name,qty,unit,price,discount,vatRate) {
+    var itemCount = document.querySelectorAll('.item-row').length + 1;
+    var d = document.createElement('div');
+    d.className = 'item-row';
+    d.innerHTML = '<div class="item-number">'+itemCount+'</div>'+
+        '<textarea placeholder="Naziv artikla" rows="2" oninput="render()">'+(name||'')+'</textarea>'+
+        '<input type="number" value="'+(qty||1)+'" step="any" oninput="render()">'+
+        '<input type="text" value="'+(unit||'kom')+'" oninput="render()">'+
+        '<input type="number" value="'+(price||0)+'" step="0.01" oninput="render()">'+
+        '<input type="number" value="'+(discount||0)+'" step="0.01" min="0" max="100" oninput="render()">'+
+        '<select onchange="handleVatChange(this)">'+(vatRate==0?'<option value="17">17%</option><option value="0" selected>0%</option>':'<option value="17" selected>17%</option><option value="0">0%</option>')+'</select>'+
+        '<button class="danger" onclick="this.parentElement.remove();updateItemNumbers();render()">✖</button>';
+    document.getElementById('items').appendChild(d);
+    render();
+}
+
+function updateItemNumbers() {
+    var rows = document.querySelectorAll('.item-row');
+    rows.forEach(function(row, index) {
+        var numDiv = row.querySelector('.item-number');
+        if(numDiv) numDiv.textContent = (index + 1);
+    });
+}
+
+function handleVatChange(select) {
+    if(select.value === '0') {
+        if(!confirm('Da li ste sigurni da želite PDV 0%?')) {
+            select.value = '17';
+        }
+    }
+    render();
+}
+
+function render() {
+    var txt = t[lang];
+    var logo = localStorage.getItem('invoiceLogo');
+    var sub = 0, totalVat = 0, rows = '';
+    var itemNum = 1;
+
+    document.querySelectorAll('.item-row').forEach(function(row) {
+        var numDiv = row.querySelector('.item-number');
+        var textarea = row.querySelector('textarea');
+        var inp = row.querySelectorAll('input');
+        var sel = row.querySelector('select');
+
+        var name = textarea.value;
+        var qty = parseFloat(inp[0].value) || 0;
+        var unit = inp[1].value;
+        var price = parseFloat(inp[2].value) || 0;
+        var discount = parseFloat(inp[3].value) || 0;
+        var vatRate = parseFloat(sel.value) || 17;
+
+        var subtotal = qty * price;
+        var discountAmt = subtotal * (discount / 100);
+        var afterDiscount = subtotal - discountAmt;
+        var vatAmt = afterDiscount * (vatRate / 100);
+        var total = afterDiscount + vatAmt;
+
+        sub += afterDiscount;
+        totalVat += vatAmt;
+
+        // Zamjena \n sa <br> za prikaz
+        var nameDisplay = name.replace(/\n/g, '<br>');
+
+        rows += '<tr>'+
+            '<td class="text-center">'+itemNum+'</td>'+
+            '<td>'+nameDisplay+'</td>'+
+            '<td class="text-right">'+qty+'</td>'+
+            '<td>'+unit+'</td>'+
+            '<td class="text-right">'+price.toFixed(2)+'</td>'+
+            '<td class="text-right">'+discount.toFixed(0)+'%</td>'+
+            '<td class="text-right">'+vatRate+'%</td>'+
+            '<td class="text-right"><strong>'+total.toFixed(2)+'</strong></td>'+
+            '</tr>';
+        itemNum++;
+    });
+
+    var grand = sub + totalVat;
+    var words = numToWords(grand);
+
+    // Seller data
+    var sellerCity = document.getElementById('sellerCity').value;
+    var sellerCountry = document.getElementById('sellerCountry').value;
+    var sellerLocation = '';
+    if (sellerCity || sellerCountry) sellerLocation = (sellerCity||'') + (sellerCity&&sellerCountry?', ':'') + (sellerCountry||'');
+
+    // Buyer data
+    var buyerCity = document.getElementById('buyerCity').value;
+    var buyerCountry = document.getElementById('buyerCountry').value;
+    var buyerLocation = '';
+    if (buyerCity || buyerCountry) buyerLocation = (buyerCity||'') + (buyerCity&&buyerCountry?', ':'') + (buyerCountry||'');
+
+    var docType = document.getElementById('docType').value;
+    var bfNum = document.getElementById('bf').value;
+    var docNum = document.getElementById('docNum').value;
+
+    var html = '<div class="invoice">'+
+        '<div class="invoice-header">'+
+        '<div>'+(logo?'<img class="invoice-logo" src="'+logo+'">':'<div style="color:#9ca3af;">Logo</div>')+'</div>'+
+        '<div class="invoice-title">'+
+        '<h1>'+docType.toUpperCase()+'</h1>'+
+        '<div class="invoice-meta">'+txt.num+': <strong>'+(docNum||'—')+'</strong></div>';
+
+    if (docType === 'Faktura' && bfNum) {
+        html += '<div class="invoice-meta">'+txt.bf+': <strong>'+bfNum+'</strong></div>';
+    }
+
+    html += '<div class="invoice-meta">'+txt.date+': '+document.getElementById('dateIssue').value+'</div>'+
+        '<div class="invoice-meta">'+txt.delivery+': '+document.getElementById('dateDelivery').value+'</div>'+
+        '</div></div>'+
+        '<div class="invoice-parties">'+
+        '<div class="party-box">'+
+        '<div class="party-label">'+txt.seller+'</div>'+
+        '<div class="party-name">'+document.getElementById('sellerName').value+'</div>'+
+        '<div class="party-details">';
+
+    if (document.getElementById('sellerContact').value) {
+        html += txt.contact+': '+document.getElementById('sellerContact').value+'<br>';
+    }
+    if (document.getElementById('sellerEmail').value) {
+        html += txt.email+': '+document.getElementById('sellerEmail').value+'<br>';
+    }
+    html += document.getElementById('sellerAddr').value+'<br>'+
+        (sellerLocation?sellerLocation+'<br>':'')+
+        (document.getElementById('sellerJIB').value?txt.tax+': '+document.getElementById('sellerJIB').value+'<br>':'')+
+        (document.getElementById('sellerVAT').value?txt.vat+': '+document.getElementById('sellerVAT').value:'');
+
+    html += '</div></div>'+
+        '<div class="party-box">'+
+        '<div class="party-label">'+txt.buyer+'</div>'+
+        '<div class="party-name">'+(document.getElementById('buyerName').value||'—')+'</div>'+
+        '<div class="party-details">';
+
+    if (document.getElementById('buyerContact').value) {
+        html += txt.contact+': '+document.getElementById('buyerContact').value+'<br>';
+    }
+    if (document.getElementById('buyerEmail').value) {
+        html += txt.email+': '+document.getElementById('buyerEmail').value+'<br>';
+    }
+    html += (document.getElementById('buyerAddr').value||'')+'<br>'+
+        (buyerLocation?buyerLocation+'<br>':'')+
+        (document.getElementById('buyerJIB').value?txt.tax+': '+document.getElementById('buyerJIB').value+'<br>':'')+
+        (document.getElementById('buyerVAT').value?txt.vat+': '+document.getElementById('buyerVAT').value:'');
+
+    html += '</div></div></div>'+
+        '<table class="invoice-table">'+
+        '<thead><tr>'+
+        '<th class="text-center">'+txt.itemNum+'</th>'+
+        '<th>'+txt.item+'</th>'+
+        '<th class="text-right">'+txt.qty+'</th>'+
+        '<th>'+txt.unit+'</th>'+
+        '<th class="text-right">'+txt.price+'</th>'+
+        '<th class="text-right">'+txt.discount+'</th>'+
+        '<th class="text-right">'+txt.vatRate+'</th>'+
+        '<th class="text-right">'+txt.total+'</th>'+
+        '</tr></thead>'+
+        '<tbody>'+rows+'</tbody></table>'+
+        '<div class="invoice-totals">'+
+        '<div class="total-row subtotal"><span>'+txt.subtotal+'</span><span>'+sub.toFixed(2)+' '+document.getElementById('curr').value+'</span></div>'+
+        '<div class="total-row vat"><span>'+txt.vatAmt+'</span><span>'+totalVat.toFixed(2)+' '+document.getElementById('curr').value+'</span></div>'+
+        '<div class="total-row grand"><span>'+txt.grand+'</span><span>'+grand.toFixed(2)+' '+document.getElementById('curr').value+'</span></div>'+
+        '</div>'+
+        '<div class="invoice-notes">'+
+        '<div class="label">'+txt.words+'</div>'+
+        '<div class="content">'+words+' '+document.getElementById('curr').value+'</div>'+
+        '</div>';
+
+    if (document.getElementById('payTerms').value) {
+        html += '<div style="margin-top: 20px; font-size: 14px; color: #000000;">'+
+            '<strong>'+txt.terms+':</strong> '+document.getElementById('payTerms').value+'</div>';
+    }
+
+    html += '<div class="payment-box">'+
+        '<div class="label">Informacije o plaćanju</div>'+
+        '<div class="info">'+txt.bank+'</div>'+
+        '</div>'+
+        '<div class="invoice-footer">'+txt.footer+'</div>'+
+        '</div>';
+
+    document.getElementById('preview').innerHTML = html;
+}
+
+function numToWords(n) {
+    if(n===0)return lang==='bs'?'nula':'zero';
+    var w=Math.floor(n),d=Math.round((n-w)*100),r='';
+    if(lang==='bs'){
+        var u=['','jedan','dva','tri','četiri','pet','šest','sedam','osam','devet'];
+        var te=['','deset','dvadeset','trideset','četrdeset','pedeset','šezdeset','sedamdeset','osamdeset','devedeset'];
+        var tn=['deset','jedanaest','dvanaest','trinaest','četrnaest','petnaest','šesnaest','sedamnaest','osamnaest','devetnaest'];
+        var h=['','sto','dvjesto','tristo','četiristo','petsto','šeststo','sedamsto','osamsto','devetsto'];
+        if(w>=1000){var k=Math.floor(w/1000);r+=(k===1?'jedna hiljada ':u[k]+' hiljade ');w%=1000;}
+        if(w>=100){r+=h[Math.floor(w/100)]+' ';w%=100;}
+        if(w>=20){r+=te[Math.floor(w/10)]+' ';w%=10;}
+        else if(w>=10){r+=tn[w-10]+' ';w=0;}
+        if(w>0)r+=u[w]+' ';
+        if(d>0)r+='i '+d+'/100';
+    }else{
+        var ue=['','one','two','three','four','five','six','seven','eight','nine'];
+        var tee=['','ten','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+        var tne=['ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+        if(w>=1000){var ke=Math.floor(w/1000);r+=ue[ke]+' thousand ';w%=1000;}
+        if(w>=100){r+=ue[Math.floor(w/100)]+' hundred ';w%=100;}
+        if(w>=20){r+=tee[Math.floor(w/10)]+' ';w%=10;}
+        else if(w>=10){r+=tne[w-10]+' ';w=0;}
+        if(w>0)r+=ue[w]+' ';
+        if(d>0)r+='and '+d+'/100';
+    }
+    return r.trim();
+}
+
+function downloadHTML() {
+    // Validacija broja dokumenta
+    var docNum = document.getElementById('docNum').value.trim();
+    if(!docNum) {
+        alert('❌ GREŠKA: Broj dokumenta mora biti popunjen prije eksporta!');
+        document.getElementById('docNum').focus();
+        return;
+    }
+
+    var content = document.getElementById('preview').innerHTML;
+
+    // Uzmi CSS direktno iz linka
+    var linkElement = document.querySelector('link[href="style.css"]');
+    if(linkElement) {
+        fetch('style.css')
+            .then(response => {
+                if(!response.ok) throw new Error('CSS file not found');
+                return response.text();
+            })
+            .then(css => {
+                createHTMLFile(content, css, docNum);
+            })
+            .catch(err => {
+                console.error('Greška pri učitavanju CSS:', err);
+                // Fallback - koristi inline CSS iz style taga ako postoji
+                var styleTag = document.querySelector('style');
+                if(styleTag) {
+                    createHTMLFile(content, styleTag.textContent, docNum);
+                } else {
+                    alert('❌ Greška: Nije moguće učitati CSS stilove.');
+                }
+            });
+    } else {
+        alert('❌ Greška: style.css nije pronađen.');
+    }
+}
+
+function createHTMLFile(content, css, docNum) {
+    var docType = document.getElementById('docType').value;
+    var full = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+
+        docType+' '+docNum+
+        '</title><style>body{margin:0;padding:40px;background:#f5f5f5;}'+css+
+        '@media print{body{background:white;padding:0;}.invoice{box-shadow:none;padding:40px;}}</style></head><body>'+
+        content+'</body></html>';
+
+    var b = new Blob([full], {type:'text/html'});
+    var u = URL.createObjectURL(b);
+    var a = document.createElement('a');
+    a.href = u;
+    a.download = docType+'_'+docNum.replace(/\//g,'_')+'.html';
+    a.click();
+    URL.revokeObjectURL(u);
+    alert('✅ HTML preuzet!');
+}
+
+function saveJSON() {
+    var items = [];
+    document.querySelectorAll('.item-row').forEach(function(row) {
+        var textarea = row.querySelector('textarea');
+        var inp = row.querySelectorAll('input');
+        var sel = row.querySelector('select');
+        items.push({
+            name:textarea.value,
+            qty:parseFloat(inp[0].value),
+            unit:inp[1].value,
+            price:parseFloat(inp[2].value),
+            discount:parseFloat(inp[3].value),
+            vatRate:parseFloat(sel.value)
+        });
+    });
+    var data = {
+        lang:lang,type:document.getElementById('docType').value,num:document.getElementById('docNum').value,
+        bf:document.getElementById('bf').value,dateIssue:document.getElementById('dateIssue').value,
+        dateDelivery:document.getElementById('dateDelivery').value,place:document.getElementById('place').value,
+        terms:document.getElementById('payTerms').value,curr:document.getElementById('curr').value,
+        seller:{name:document.getElementById('sellerName').value,contact:document.getElementById('sellerContact').value,
+        email:document.getElementById('sellerEmail').value,addr:document.getElementById('sellerAddr').value,
+        city:document.getElementById('sellerCity').value,country:document.getElementById('sellerCountry').value,
+        jib:document.getElementById('sellerJIB').value,vat:document.getElementById('sellerVAT').value},
+        buyer:{name:document.getElementById('buyerName').value,contact:document.getElementById('buyerContact').value,
+        email:document.getElementById('buyerEmail').value,addr:document.getElementById('buyerAddr').value,
+        city:document.getElementById('buyerCity').value,country:document.getElementById('buyerCountry').value,
+        jib:document.getElementById('buyerJIB').value,vat:document.getElementById('buyerVAT').value},
+        items:items
+    };
+    var b = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    var u = URL.createObjectURL(b);
+    var a = document.createElement('a');
+    a.href = u;
+    var filename = data.type+'_'+(data.num||'DRAFT').replace(/\//g,'_')+'.json';
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(u);
+}
+
+function loadJSON(e) {
+    var f = e.target.files[0];
+    if(!f) return;
+    var r = new FileReader();
+    r.onload = function(ev) {
+        try {
+            var d = JSON.parse(ev.target.result);
+            lang = d.lang||'bs';
+            document.getElementById('lang').value = lang;
+            document.getElementById('docType').value = d.type||'Faktura';
+            document.getElementById('docNum').value = d.num||'';
+            document.getElementById('bf').value = d.bf||'';
+            document.getElementById('dateIssue').value = d.dateIssue||'';
+            document.getElementById('dateDelivery').value = d.dateDelivery||'';
+            document.getElementById('place').value = d.place||'Sarajevo';
+            document.getElementById('payTerms').value = d.terms||'';
+            document.getElementById('curr').value = d.curr||'KM';
+
+            if(d.seller) {
+                document.getElementById('sellerName').value = d.seller.name||'NextGenSolutions d.o.o.';
+                document.getElementById('sellerContact').value = d.seller.contact||'Nedim Fejzić';
+                document.getElementById('sellerEmail').value = d.seller.email||'info@nextgensolutions.ba';
+                document.getElementById('sellerAddr').value = d.seller.addr||'Fra Andjela Zvizdovica 1 (PC Unitic)';
+                document.getElementById('sellerCity').value = d.seller.city||'Sarajevo';
+                document.getElementById('sellerCountry').value = d.seller.country||'Bosna i Hercegovina';
+                document.getElementById('sellerJIB').value = d.seller.jib||'4203549920007';
+                document.getElementById('sellerVAT').value = d.seller.vat||'';
+            }
+
+            document.getElementById('buyerName').value = d.buyer.name||'';
+            document.getElementById('buyerContact').value = d.buyer.contact||'';
+            document.getElementById('buyerEmail').value = d.buyer.email||'';
+            document.getElementById('buyerAddr').value = d.buyer.addr||'';
+            document.getElementById('buyerCity').value = d.buyer.city||'';
+            document.getElementById('buyerCountry').value = d.buyer.country||'';
+            document.getElementById('buyerJIB').value = d.buyer.jib||'';
+            document.getElementById('buyerVAT').value = d.buyer.vat||'';
+
+            document.getElementById('items').innerHTML = '';
+            if(d.items && d.items.length>0) {
+                d.items.forEach(function(it) { 
+                    addItem(it.name,it.qty,it.unit,it.price,it.discount||0,it.vatRate||17); 
+                });
+            } else {
+                addItem();
+            }
+            alert('✅ Učitano!');
+        } catch(err) {
+            alert('❌ Greška: '+err.message);
+        }
+    };
+    r.readAsText(f);
+}
+
+function resetForm() {
+    if(confirm('Novi dokument?')) {
+        ['buyerName','buyerContact','buyerEmail','buyerAddr','buyerCity','buyerCountry','buyerJIB','buyerVAT','payTerms','bf','docNum'].forEach(function(id) {
+            document.getElementById(id).value = '';
+        });
+        document.getElementById('items').innerHTML = '';
+        addItem();
+    }
+}
+
+function removeLogo() {
+    localStorage.removeItem('invoiceLogo');
+    document.getElementById('logoPreview').innerHTML = '';
+    render();
+}
+
+function uploadLogo(e) {
+    var f = e.target.files[0];
+    if(f) {
+        var r = new FileReader();
+        r.onload = function(ev) {
+            localStorage.setItem('invoiceLogo', ev.target.result);
+            document.getElementById('logoPreview').innerHTML = '<img src="'+ev.target.result+'" style="max-width:210px;margin-top:10px;">';
+            render();
+        };
+        r.readAsDataURL(f);
+    }
+}
+
+function changeLang() {
+    lang = document.getElementById('lang').value;
+    render();
+}
+
+var logo = localStorage.getItem('invoiceLogo');
+if(logo) document.getElementById('logoPreview').innerHTML = '<img src="'+logo+'" style="max-width:210px;margin-top:10px;">';
+
+addItem();
+render();
