@@ -4,6 +4,186 @@ var t = {
     en: {num:'Number',bf:'BF',date:'Issue date',delivery:'Delivery date',seller:'Seller',buyer:'Buyer',contact:'Contact',tax:'Tax ID',vat:'VAT',item:'Description',qty:'Qty',unit:'Unit',price:'Price',total:'Total',subtotal:'Subtotal',vatAmt:'VAT',grand:'TOTAL AMOUNT DUE',words:'Amount in words',terms:'Payment terms',bank:'Payment can be made to account 134 105 112 002 8469, opened at Asa Bank.',footer:'Business entity registered with the Municipal Court in Sarajevo under registration number 65–01–0803-25.',itemNum:'No.',discount:'Discount%',vatRate:'VAT%',email:'E-mail'}
 };
 
+// EMBEDDED CSS ZA EXPORT
+var invoiceCSS = `.invoice { 
+    background: white;
+    padding: 45px 50px;
+    max-width: 900px;
+    margin: 0 auto;
+    box-shadow: 0 0 40px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #000000;
+    line-height: 1.6;
+}
+.invoice-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 3px solid #000000;
+}
+.invoice-logo { 
+    max-width: 560px; 
+    max-height: 280px; 
+}
+.invoice-title { text-align: right; }
+.invoice-title h1 { 
+    font-size: 36px; 
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+.invoice-meta { 
+    font-size: 14px;
+    color: #000000;
+    margin: 4px 0;
+    font-weight: 500;
+}
+.invoice-parties { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 40px;
+    margin: 40px 0;
+}
+.party-box { padding: 0; }
+.party-label { 
+    font-size: 11px;
+    font-weight: 700;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+.party-name { 
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 6px;
+}
+.party-details { 
+    font-size: 14px;
+    color: #000000;
+    line-height: 1.7;
+    font-weight: 500;
+}
+.invoice-table { 
+    width: 100%;
+    border-collapse: collapse;
+    margin: 40px 0;
+}
+.invoice-table thead {
+    background: #e0e0e0;
+    border-top: 3px solid #000000;
+    border-bottom: 3px solid #000000;
+}
+.invoice-table th { 
+    padding: 14px 8px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.invoice-table td { 
+    padding: 14px 8px;
+    border-bottom: 2px solid #cccccc;
+    font-size: 13px;
+    color: #000000;
+    font-weight: 500;
+    vertical-align: top;
+}
+.invoice-table tbody tr:last-child td { 
+    border-bottom: 3px solid #000000; 
+}
+.invoice-table .text-right { text-align: right; }
+.invoice-table .text-center { text-align: center; }
+.invoice-totals { 
+    margin: 30px 0 0 auto;
+    width: 350px;
+}
+.total-row { 
+    display: flex; 
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+.total-row.subtotal { 
+    color: #000000; 
+    padding-bottom: 12px; 
+}
+.total-row.vat { 
+    color: #000000; 
+    padding-bottom: 12px; 
+    border-bottom: 3px solid #000000; 
+}
+.total-row.grand { 
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
+    padding-top: 18px;
+}
+.invoice-notes {
+    margin-top: 40px;
+    padding: 20px;
+    background: #f0f0f0;
+    border-left: 5px solid #000000;
+    border-radius: 4px;
+}
+.invoice-notes .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+.invoice-notes .content {
+    font-size: 14px;
+    color: #000000;
+    font-style: italic;
+    font-weight: 500;
+}
+.payment-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f0f0f0;
+    border: 2px solid #000000;
+    border-radius: 6px;
+}
+.payment-box .label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 8px;
+}
+.payment-box .info {
+    font-size: 14px;
+    color: #000000;
+    font-weight: 600;
+}
+.invoice-footer { 
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 2px solid #000000;
+    text-align: center;
+    font-size: 11px;
+    color: #333333;
+    line-height: 1.8;
+    font-weight: 500;
+}
+@media print {
+    body {background: white;padding: 0;}
+    .invoice {box-shadow: none;padding: 40px;}
+    .invoice-header,.invoice-table thead,.invoice-table tbody tr:last-child td,.total-row.vat,.invoice-notes,.payment-box,.invoice-footer {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}`;
+
 function addItem(name,qty,unit,price,discount,vatRate) {
     var itemCount = document.querySelectorAll('.item-row').length + 1;
     var d = document.createElement('div');
@@ -65,7 +245,6 @@ function render() {
         sub += afterDiscount;
         totalVat += vatAmt;
 
-        // Zamjena \n sa <br> za prikaz
         var nameDisplay = name.replace(/\n/g, '<br>');
 
         rows += '<tr>'+
@@ -84,13 +263,11 @@ function render() {
     var grand = sub + totalVat;
     var words = numToWords(grand);
 
-    // Seller data
     var sellerCity = document.getElementById('sellerCity').value;
     var sellerCountry = document.getElementById('sellerCountry').value;
     var sellerLocation = '';
     if (sellerCity || sellerCountry) sellerLocation = (sellerCity||'') + (sellerCity&&sellerCountry?', ':'') + (sellerCountry||'');
 
-    // Buyer data
     var buyerCity = document.getElementById('buyerCity').value;
     var buyerCountry = document.getElementById('buyerCountry').value;
     var buyerLocation = '';
@@ -215,7 +392,6 @@ function numToWords(n) {
 }
 
 function downloadHTML() {
-    // Validacija broja dokumenta
     var docNum = document.getElementById('docNum').value.trim();
     if(!docNum) {
         alert('❌ GREŠKA: Broj dokumenta mora biti popunjen prije eksporta!');
@@ -223,40 +399,12 @@ function downloadHTML() {
         return;
     }
 
+    var docType = document.getElementById('docType').value;
     var content = document.getElementById('preview').innerHTML;
 
-    // Uzmi CSS direktno iz linka
-    var linkElement = document.querySelector('link[href="style.css"]');
-    if(linkElement) {
-        fetch('style.css')
-            .then(response => {
-                if(!response.ok) throw new Error('CSS file not found');
-                return response.text();
-            })
-            .then(css => {
-                createHTMLFile(content, css, docNum);
-            })
-            .catch(err => {
-                console.error('Greška pri učitavanju CSS:', err);
-                // Fallback - koristi inline CSS iz style taga ako postoji
-                var styleTag = document.querySelector('style');
-                if(styleTag) {
-                    createHTMLFile(content, styleTag.textContent, docNum);
-                } else {
-                    alert('❌ Greška: Nije moguće učitati CSS stilove.');
-                }
-            });
-    } else {
-        alert('❌ Greška: style.css nije pronađen.');
-    }
-}
-
-function createHTMLFile(content, css, docNum) {
-    var docType = document.getElementById('docType').value;
     var full = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+
         docType+' '+docNum+
-        '</title><style>body{margin:0;padding:40px;background:#f5f5f5;}'+css+
-        '@media print{body{background:white;padding:0;}.invoice{box-shadow:none;padding:40px;}}</style></head><body>'+
+        '</title><style>body{margin:0;padding:40px;background:#f5f5f5;}'+invoiceCSS+'</style></head><body>'+
         content+'</body></html>';
 
     var b = new Blob([full], {type:'text/html'});
@@ -328,14 +476,14 @@ function loadJSON(e) {
             document.getElementById('curr').value = d.curr||'KM';
 
             if(d.seller) {
-                document.getElementById('sellerName').value = d.seller.name||'NextGenSolutions d.o.o.';
+                document.getElementById('sellerName').value = d.seller.name||'NextGenSolutions d.o.o. Sarajevo';
                 document.getElementById('sellerContact').value = d.seller.contact||'Nedim Fejzić';
                 document.getElementById('sellerEmail').value = d.seller.email||'info@nextgensolutions.ba';
                 document.getElementById('sellerAddr').value = d.seller.addr||'Fra Andjela Zvizdovica 1 (PC Unitic)';
                 document.getElementById('sellerCity').value = d.seller.city||'Sarajevo';
                 document.getElementById('sellerCountry').value = d.seller.country||'Bosna i Hercegovina';
                 document.getElementById('sellerJIB').value = d.seller.jib||'4203549920007';
-                document.getElementById('sellerVAT').value = d.seller.vat||'';
+                document.getElementById('sellerVAT').value = d.seller.vat||'203549920007';
             }
 
             document.getElementById('buyerName').value = d.buyer.name||'';
@@ -397,6 +545,7 @@ function changeLang() {
     render();
 }
 
+// INICIJALIZACIJA - UČITAJ LOGO I DODAJ PRVU STAVKU
 var logo = localStorage.getItem('invoiceLogo');
 if(logo) document.getElementById('logoPreview').innerHTML = '<img src="'+logo+'" style="max-width:210px;margin-top:10px;">';
 
