@@ -4,10 +4,8 @@ var t = {
     en: {num:'Number',bf:'BF',date:'Issue date',delivery:'Delivery date',seller:'Seller',buyer:'Buyer',supplier:'Supplier',orderer:'Orderer',contact:'Contact',tax:'Tax ID',vat:'VAT',item:'Description',qty:'Qty',unit:'Unit',price:'Price',total:'Total',subtotal:'Subtotal',vatAmt:'VAT',grand:'TOTAL AMOUNT DUE',words:'Amount in words',terms:'Payment terms',bank:'Payment can be made to account 134 105 112 002 8469, opened at Asa Bank.',footer:'Business entity registered with the Municipal Court in Sarajevo under registration number 65–01–0803-25.',itemNum:'No.',discount:'Discount%',vatRate:'VAT%',email:'E-mail',electronic:'This document is issued electronically and is valid without seal and signature.'}
 };
 
-// FIKSNI LOGO - logo.png iz istog foldera
 var logoPath = 'logo.png';
 
-// EMBEDDED CSS ZA EXPORT
 var invoiceCSS = `.invoice { 
     background: white;
     padding: 45px 50px;
@@ -187,6 +185,25 @@ var invoiceCSS = `.invoice {
     }
 }`;
 
+// pomoćne funkcije za datume
+function formatDateEU(iso) {
+    if (!iso) return '—';
+    var parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    return parts[2] + '.' + parts[1] + '.' + parts[0] + '.';
+}
+
+function addDaysToISO(iso, days) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    d.setDate(d.getDate() + days);
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+}
+
 function addItem(name,qty,unit,price,discount,vatRate) {
     var itemCount = document.querySelectorAll('.item-row').length + 1;
     var d = document.createElement('div');
@@ -234,11 +251,10 @@ function validateRequiredFields() {
         errors.push('Naziv kupca je obavezan');
     }
     
-    // Provjeri da li postoji bar jedan artikal sa nazivom i cijenom
     var hasValidItem = false;
     document.querySelectorAll('.item-row').forEach(function(row) {
         var textarea = row.querySelector('textarea');
-        var priceInput = row.querySelectorAll('input')[2]; // cijena je 3. input
+        var priceInput = row.querySelectorAll('input')[2];
         if (textarea.value.trim() && parseFloat(priceInput.value) > 0) {
             hasValidItem = true;
         }
@@ -257,7 +273,6 @@ function render() {
     var itemNum = 1;
 
     document.querySelectorAll('.item-row').forEach(function(row) {
-        var numDiv = row.querySelector('.item-number');
         var textarea = row.querySelector('textarea');
         var inp = row.querySelectorAll('input');
         var sel = row.querySelector('select');
@@ -300,7 +315,13 @@ function render() {
     var bfNum = document.getElementById('bf').value;
     var docNum = document.getElementById('docNum').value;
 
-    // LOGIKA ZA NARUDŽBENICU - OBRNUTO
+    var dateIssueISO = document.getElementById('dateIssue').value;
+    var dateDeliveryISO = document.getElementById('dateDelivery').value;
+    var paymentDays = parseInt(document.getElementById('paymentDays').value || '0', 10);
+    var dueISO = addDaysToISO(dateIssueISO, paymentDays);
+    var dueEU = dueISO ? formatDateEU(dueISO) : '—';
+    document.getElementById('dueDate').value = dueEU;
+
     var isNarudzbenica = (docType === 'Narudžbenica');
     
     var party1Label, party2Label;
@@ -308,7 +329,6 @@ function render() {
     var party2Name, party2Contact, party2Email, party2Addr, party2City, party2Country, party2JIB, party2VAT;
 
     if (isNarudzbenica) {
-        // Za narudžbenicu: NextGen je Naručilac (lijevo), unosi se Dobavljač (desno)
         party1Label = txt.orderer || 'Naručilac';
         party1Name = 'NextGenSolutions d.o.o. Sarajevo';
         party1Contact = 'Nedim Fejzić';
@@ -329,7 +349,6 @@ function render() {
         party2JIB = document.getElementById('buyerJIB').value;
         party2VAT = document.getElementById('buyerVAT').value;
     } else {
-        // Za fakturu/ponudu: normalna logika - Prodavač (NextGen) / Kupac
         party1Label = txt.seller;
         party1Name = document.getElementById('sellerName').value;
         party1Contact = document.getElementById('sellerContact').value;
@@ -368,9 +387,15 @@ function render() {
         html += '<div class="invoice-meta">'+txt.bf+': <strong>'+bfNum+'</strong></div>';
     }
 
-    html += '<div class="invoice-meta">'+txt.date+': '+document.getElementById('dateIssue').value+'</div>'+
-        '<div class="invoice-meta">'+txt.delivery+': '+document.getElementById('dateDelivery').value+'</div>'+
-        '</div></div>'+
+    html += '<div class="invoice-meta">'+txt.date+': '+formatDateEU(dateIssueISO)+'</div>'+
+        '<div class="invoice-meta">'+txt.delivery+': '+formatDateEU(dateDeliveryISO)+'</div>';
+
+    if (paymentDays > 0 && dueISO) {
+        var label = (lang === 'bs') ? 'Rok plaćanja' : 'Due date';
+        html += '<div class="invoice-meta">'+label+': '+dueEU+'</div>';
+    }
+
+    html += '</div></div>'+
         '<div class="invoice-parties">'+
         '<div class="party-box">'+
         '<div class="party-label">'+party1Label+'</div>'+
@@ -475,7 +500,6 @@ function numToWords(n) {
 }
 
 function downloadHTML() {
-    // Validacija
     var errors = validateRequiredFields();
     if (errors.length > 0) {
         alert('❌ GREŠKA:\n\n' + errors.join('\n'));
@@ -502,7 +526,6 @@ function downloadHTML() {
 }
 
 function saveJSON() {
-    // Validacija
     var errors = validateRequiredFields();
     if (errors.length > 0) {
         alert('❌ GREŠKA:\n\n' + errors.join('\n'));
@@ -525,26 +548,41 @@ function saveJSON() {
     });
     
     var data = {
-        lang:lang,type:document.getElementById('docType').value,num:document.getElementById('docNum').value,
-        bf:document.getElementById('bf').value,dateIssue:document.getElementById('dateIssue').value,
-        dateDelivery:document.getElementById('dateDelivery').value,place:document.getElementById('place').value,
-        terms:document.getElementById('payTerms').value,curr:document.getElementById('curr').value,
-        seller:{name:document.getElementById('sellerName').value,contact:document.getElementById('sellerContact').value,
-        email:document.getElementById('sellerEmail').value,addr:document.getElementById('sellerAddr').value,
-        city:document.getElementById('sellerCity').value,country:document.getElementById('sellerCountry').value,
-        jib:document.getElementById('sellerJIB').value,vat:document.getElementById('sellerVAT').value},
-        buyer:{name:document.getElementById('buyerName').value,contact:document.getElementById('buyerContact').value,
-        email:document.getElementById('buyerEmail').value,addr:document.getElementById('buyerAddr').value,
-        city:document.getElementById('buyerCity').value,country:document.getElementById('buyerCountry').value,
-        jib:document.getElementById('buyerJIB').value,vat:document.getElementById('buyerVAT').value},
+        lang:lang,
+        type:document.getElementById('docType').value,
+        num:document.getElementById('docNum').value,
+        bf:document.getElementById('bf').value,
+        dateIssue:document.getElementById('dateIssue').value,
+        dateDelivery:document.getElementById('dateDelivery').value,
+        place:document.getElementById('place').value,
+        terms:document.getElementById('payTerms').value,
+        curr:document.getElementById('curr').value,
+        termsDays:document.getElementById('paymentDays').value,
+        seller:{
+            name:document.getElementById('sellerName').value,
+            contact:document.getElementById('sellerContact').value,
+            email:document.getElementById('sellerEmail').value,
+            addr:document.getElementById('sellerAddr').value,
+            city:document.getElementById('sellerCity').value,
+            country:document.getElementById('sellerCountry').value,
+            jib:document.getElementById('sellerJIB').value,
+            vat:document.getElementById('sellerVAT').value
+        },
+        buyer:{
+            name:document.getElementById('buyerName').value,
+            contact:document.getElementById('buyerContact').value,
+            email:document.getElementById('buyerEmail').value,
+            addr:document.getElementById('buyerAddr').value,
+            city:document.getElementById('buyerCity').value,
+            country:document.getElementById('buyerCountry').value,
+            jib:document.getElementById('buyerJIB').value,
+            vat:document.getElementById('buyerVAT').value
+        },
         items:items
     };
     
-    // FORMATIRANJE IMENA FAJLA: NazivKupca(10 char)fakt/pon/narDDMMYYYY-brojdokumenta
     var buyerName = document.getElementById('buyerName').value || 'DRAFT';
     var docType = document.getElementById('docType').value;
-    
-    // Odredi prefiks prema tipu dokumenta
     var docPrefix = '';
     if (docType === 'Faktura') {
         docPrefix = 'fakt';
@@ -554,21 +592,17 @@ function saveJSON() {
         docPrefix = 'nar';
     }
     
-    // Uzmi prvih 10 karaktera naziva kupca, ukloni razmake i specijalne znakove
     var buyerShort = buyerName
-        .replace(/[^a-zA-Z0-9\u0080-\uFFFF]/g, '') // Ukloni sve osim slova i brojeva (uključujući ćčšđž)
+        .replace(/[^a-zA-Z0-9\u0080-\uFFFF]/g, '')
         .substring(0, 10);
     
-    // Formatiraj datum iz dateIssue (YYYY-MM-DD) u DDMMYYYY
     var dateIssue = document.getElementById('dateIssue').value;
     var dateParts = dateIssue.split('-');
-    var dateFormatted = dateParts[2] + dateParts[1] + dateParts[0]; // DDMMYYYY
+    var dateFormatted = dateParts[2] + dateParts[1] + dateParts[0];
     
-    // Broj dokumenta
     var docNum = data.num || 'DRAFT';
     var docNumClean = docNum.replace(/\//g, '-');
     
-    // Konačno ime: NazivKupca(10)fakt/pon/narDDMMYYYY-brojdokumenta.json
     var filename = buyerShort + docPrefix + dateFormatted + '-' + docNumClean + '.json';
     
     var b = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
@@ -599,6 +633,7 @@ function loadJSON(e) {
             document.getElementById('place').value = d.place||'Sarajevo';
             document.getElementById('payTerms').value = d.terms||'';
             document.getElementById('curr').value = d.curr||'KM';
+            document.getElementById('paymentDays').value = d.termsDays || '15';
 
             if(d.seller) {
                 document.getElementById('sellerName').value = d.seller.name||'NextGenSolutions d.o.o. Sarajevo';
@@ -611,14 +646,14 @@ function loadJSON(e) {
                 document.getElementById('sellerVAT').value = d.seller.vat||'203549920007';
             }
 
-            document.getElementById('buyerName').value = d.buyer.name||'';
-            document.getElementById('buyerContact').value = d.buyer.contact||'';
-            document.getElementById('buyerEmail').value = d.buyer.email||'';
-            document.getElementById('buyerAddr').value = d.buyer.addr||'';
-            document.getElementById('buyerCity').value = d.buyer.city||'';
-            document.getElementById('buyerCountry').value = d.buyer.country||'';
-            document.getElementById('buyerJIB').value = d.buyer.jib||'';
-            document.getElementById('buyerVAT').value = d.buyer.vat||'';
+            document.getElementById('buyerName').value = (d.buyer && d.buyer.name)||'';
+            document.getElementById('buyerContact').value = (d.buyer && d.buyer.contact)||'';
+            document.getElementById('buyerEmail').value = (d.buyer && d.buyer.email)||'';
+            document.getElementById('buyerAddr').value = (d.buyer && d.buyer.addr)||'';
+            document.getElementById('buyerCity').value = (d.buyer && d.buyer.city)||'';
+            document.getElementById('buyerCountry').value = (d.buyer && d.buyer.country)||'';
+            document.getElementById('buyerJIB').value = (d.buyer && d.buyer.jib)||'';
+            document.getElementById('buyerVAT').value = (d.buyer && d.buyer.vat)||'';
 
             document.getElementById('items').innerHTML = '';
             if(d.items && d.items.length>0) {
@@ -651,6 +686,5 @@ function changeLang() {
     render();
 }
 
-// INICIJALIZACIJA - DODAJ PRVU STAVKU
 addItem();
 render();

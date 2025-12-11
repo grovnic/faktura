@@ -16,9 +16,9 @@
                     <option value="bs">🇧🇦 Bosanski</option>
                     <option value="en">🇬🇧 English</option>
                 </select>
-                <button class="secondary" onclick="saveJSON()">📥 Eksportuj JSON</button>
-                <button onclick="document.getElementById('loadFile').click()">📤 Importuj JSON</button>
-                <button onclick="resetForm()">📄 Novi</button>
+                <button class="secondary" onclick="saveJSON()">📥 Eksportuj podatke</button>
+                <button onclick="document.getElementById('loadFile').click()">📤 Importuj podatke</button>
+                <button onclick="resetForm()">📄 Pobriši sve</button>
                 <button class="secondary" onclick="downloadHTML()">💾 Preuzmi HTML</button>
                 <input type="file" id="loadFile" class="hidden" accept=".json" onchange="loadJSON(event)">
             </div>
@@ -61,6 +61,16 @@
                 <div>
                     <label>Datum isporuke</label>
                     <input type="date" id="dateDelivery" value="2025-12-09" oninput="render()">
+                </div>
+            </div>
+            <div class="grid2" style="margin-top: 10px;">
+                <div>
+                    <label>Rok plaćanja (dana)</label>
+                    <input type="number" id="paymentDays" value="15" min="0" max="365" placeholder="Broj dana" oninput="render()">
+                </div>
+                <div>
+                    <label>Datum dospijeća (automatski)</label>
+                    <input type="text" id="dueDate" readonly style="background: #f0f0f0; cursor: not-allowed;">
                 </div>
             </div>
         </div>
@@ -123,8 +133,8 @@
             <h3>Plaćanje</h3>
             <label>Mjesto</label>
             <input type="text" id="place" value="Sarajevo" oninput="render()">
-            <label style="margin-top: 10px;">Uvjeti plaćanja</label>
-            <input type="text" id="payTerms" placeholder="Npr. Rok 15 dana" oninput="render()">
+            <label style="margin-top: 10px;">Napomena uz plaćanje</label>
+            <input type="text" id="payTerms" placeholder="Dodatne napomene (opcionalno)" oninput="render()">
         </div>
 
         <div class="app-box">
