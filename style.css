@@ -1,0 +1,542 @@
+/* Reset i osnove */
+* {margin: 0; padding: 0; box-sizing: border-box;}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    padding: 25px;
+}
+
+h1 {
+    color: #2d3748;
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+h1 a {
+    color: #667eea;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+h1 a:hover {
+    color: #5568d3;
+    text-decoration: underline;
+}
+
+/* SEGMENTED CONTROL ZA JEZIK (iOS style) */
+.language-selector {
+    display: inline-flex;
+    background: #e2e8f0;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.lang-btn {
+    padding: 8px 18px;
+    border: none;
+    background: transparent;
+    color: #4a5568;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.lang-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.lang-btn.active {
+    background: #667eea;
+    color: white;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);
+}
+
+/* VALIDATION INFO BOX */
+.validation-info {
+    background: linear-gradient(135deg, #fef5e7 0%, #fdebd0 100%);
+    border: 2px solid #f39c12;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin: 15px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.validation-icon {
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.validation-text {
+    flex: 1;
+}
+
+.validation-text strong {
+    color: #d68910;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.validation-text ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.validation-text li {
+    color: #2d3748;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 4px;
+}
+
+.validation-text li strong {
+    display: inline;
+    color: #c0392b;
+    font-weight: 600;
+}
+
+/* VERTIKALNI LAYOUT - Pregled ispod unosa */
+.layout {
+    display: block;
+}
+
+/* Paneli */
+.panel {
+    background: #f7fafc;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+
+.panel h2 {
+    color: #2d3748;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.section {
+    margin-bottom: 18px;
+}
+
+.section h3 {
+    color: #4a5568;
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+/* Forme */
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #4a5568;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
+
+input:disabled {
+    background: #f7fafc;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Grid za datum */
+.date-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Grid za dokument - 4 polja (STARI) */
+.doc-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr 1.5fr;
+    gap: 10px;
+}
+
+/* Grid za dokument - 6 polja (NOVI) */
+.doc-grid-extended {
+    display: grid;
+    grid-template-columns: 1.2fr 1.8fr 0.8fr 1.2fr 1.2fr 1.2fr;
+    gap: 10px;
+}
+
+/* Grid za kupca - red 2: Adresa, Grad, Država */
+.buyer-grid-2 {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 10px;
+}
+
+/* Grid za kupca - red 3: JIB, PDV, Kontakt, Email, Referenca */
+.buyer-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+/* Header za kolone stavki - SA PN (9 KOLONA) */
+.item-header {
+    display: grid;
+    grid-template-columns: 50px 100px 1fr 70px 70px 90px 80px 70px 60px;
+    gap: 8px;
+    padding: 8px;
+    background: #edf2f7;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+/* Item row - 9 KOLONA */
+.item-row {
+    display: grid;
+    grid-template-columns: 50px 100px 1fr 70px 70px 90px 80px 70px 60px;
+    gap: 8px;
+    padding: 8px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.item-number {
+    text-align: center;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.item-row input, .item-row textarea, .item-row select {
+    padding: 6px 8px;
+    font-size: 13px;
+}
+
+.item-row textarea {
+    min-height: 45px;
+    resize: vertical;
+}
+
+/* Dugmad */
+button {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+button.primary {
+    background: #667eea;
+    color: white;
+}
+
+button.primary:hover {
+    background: #5568d3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+}
+
+button.primary:disabled {
+    background: #cbd5e0;
+    color: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+button.secondary {
+    background: #48bb78;
+    color: white;
+}
+
+button.secondary:hover {
+    background: #38a169;
+}
+
+button.secondary:disabled {
+    background: #cbd5e0;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+button.danger {
+    background: #f56565;
+    color: white;
+}
+
+button.danger:hover {
+    background: #e53e3e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245,101,101,0.3);
+}
+
+button.info-btn {
+    background: #4299e1;
+    color: white;
+}
+
+button.info-btn:hover {
+    background: #3182ce;
+}
+
+button.info-btn:disabled {
+    background: #cbd5e0;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+/* Button row */
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Preview panel */
+#preview {
+    background: white;
+    min-height: 400px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: white;
+    margin: 40px auto;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 600px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-content.instructions-wide {
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #2d3748;
+}
+
+.modal-content h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #4a5568;
+    font-size: 16px;
+}
+
+.modal-content p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #2d3748;
+}
+
+.modal-content ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.modal-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.modal-content em {
+    color: #718096;
+    font-size: 13px;
+}
+
+.close {
+    color: #a0aec0;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #2d3748;
+}
+
+/* First time setup */
+#firstTimeSetup {
+    background: #fef5e7;
+    border: 2px solid #f39c12;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#firstTimeSetup h3 {
+    color: #d68910;
+    margin-bottom: 10px;
+}
+
+/* Logo preview */
+#logoPreview {
+    margin-top: 10px;
+    text-align: center;
+}
+
+#logoPreview img {
+    max-width: 200px;
+    max-height: 100px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+}
+
+/* Invoice table - 9 KOLONA */
+.invoice-table th:nth-child(1) { width: 40px; text-align: center; }
+.invoice-table th:nth-child(2) { width: 100px; }
+.invoice-table th:nth-child(3) { width: auto; }
+.invoice-table th:nth-child(4) { width: 60px; text-align: right; }
+.invoice-table th:nth-child(5) { width: 60px; }
+.invoice-table th:nth-child(6) { width: 85px; text-align: right; }
+.invoice-table th:nth-child(7) { width: 70px; text-align: right; }
+.invoice-table th:nth-child(8) { width: 60px; text-align: right; }
+.invoice-table th:nth-child(9) { width: 95px; text-align: right; }
+
+.invoice-table td:nth-child(1) { text-align: center; }
+.invoice-table td:nth-child(2) { }
+.invoice-table td:nth-child(3) { }
+.invoice-table td:nth-child(4) { text-align: right; }
+.invoice-table td:nth-child(5) { }
+.invoice-table td:nth-child(6) { text-align: right; }
+.invoice-table td:nth-child(7) { text-align: right; }
+.invoice-table td:nth-child(8) { text-align: right; }
+.invoice-table td:nth-child(9) { text-align: right; }
+
+/* PRINT STYLES - KRITIČNO */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .container {
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    /* SAKRIJ SVE OSIM PREVIEW DIV-A */
+    .container > h1 {
+        display: none !important;
+    }
+
+    .button-row {
+        display: none !important;
+    }
+
+    .validation-info {
+        display: none !important;
+    }
+
+    .layout {
+        display: block;
+    }
+
+    /* SAKRIJ PRVI PANEL (forma) */
+    .panel:first-child {
+        display: none !important;
+    }
+
+    /* SAKRIJ H2 'Pregled dokumenta' */
+    .panel:last-child h2 {
+        display: none !important;
+    }
+
+    /* UKLONI PADDING/BORDER SA PANEL PREVIEW */
+    .panel:last-child {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* UKLONI BORDER SA PREVIEW DIV-A */
+    #preview {
+        border: none !important;
+        border-radius: 0 !important;
+    }
+}

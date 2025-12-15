@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Faktura Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📄 E-Faktura Generator | Kontakt: <a href="mailto:electroace@gmail.com">📧 electroace@gmail.com</a></h1>
+
+        <div class="button-row">
+            <button class="primary" onclick="showCompanySettings()">⚙️ Postavke firme</button>
+
+            <!-- SEGMENTED CONTROL ZA JEZIK -->
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="bs" onclick="changeLang('bs')">🇧🇦 Bosanski</button>
+                <button class="lang-btn" data-lang="en" onclick="changeLang('en')">🇬🇧 English</button>
+            </div>
+
+            <button onclick="showInstructions()">❓ Upute</button>
+            <button id="btnSaveJSON" class="primary" onclick="saveJSON()" disabled>💾 Sačuvaj JSON</button>
+            <button id="btnLoadJSON" class="primary" onclick="document.getElementById('fileInput').click()">📂 Učitaj JSON</button>
+            <input type="file" id="fileInput" accept=".json" onchange="loadJSON(event)" style="display:none;">
+            <button class="danger" onclick="clearDocument()">🗑️ Obriši unos</button>
+            <button id="btnDownloadHTML" class="secondary" onclick="downloadHTML()" disabled>💾 Preuzmi HTML</button>
+            <button id="btnPrint" class="info-btn" onclick="printToPDF()" disabled>🖨️ Print u PDF</button>
+        </div>
+
+        <!-- VALIDATION INFO BOX -->
+        <div id="validationInfo" class="validation-info" style="display:none;">
+            <div class="validation-icon">⚠️</div>
+            <div class="validation-text">
+                <strong>Za aktiviranje dugmadi potrebno je unijeti:</strong>
+                <ul>
+                    <li>Broj dokumenta</li>
+                    <li>Naziv kupca</li>
+                    <li>Minimalno 1 stavka sa: <strong>šifra</strong>, <strong>opis</strong>, <strong>količina > 0</strong>, <strong>cijena > 0</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="layout">
+            <div class="panel">
+                <h2>📝 Podaci o dokumentu</h2>
+
+                <div class="section">
+                    <h3>Dokument</h3>
+                    <div class="doc-grid-extended">
+                        <div class="form-group">
+                            <label>Tip dokumenta *</label>
+                            <select id="docType" onchange="handleDocTypeChange()">
+                                <option value="quote">Ponuda</option>
+                                <option value="invoice">Faktura</option>
+                                <option value="order">Narudžbenica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Broj *</label>
+                            <input type="text" id="docNum" oninput="validateAndRender()" placeholder="2024/001">
+                        </div>
+                        <div class="form-group">
+                            <label>BF</label>
+                            <input type="text" id="bfNum" oninput="render()" placeholder="12345" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Datum izdavanja</label>
+                            <input type="date" id="dateIssue" oninput="render()">
+                        </div>
+                        <div class="form-group">
+                            <label>Datum isporuke</label>
+                            <input type="date" id="dateDelivery" oninput="render()">
+                        </div>
+                        <div class="form-group">
+                            <label>Rok plaćanja (dana)</label>
+                            <input type="number" id="paymentDays" oninput="render()" placeholder="15" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Kupac</h3>
+                    <div class="form-group">
+                        <label>Naziv kupca *</label>
+                        <input type="text" id="buyerName" oninput="validateAndRender()">
+                    </div>
+                    <div class="buyer-grid-2">
+                        <div class="form-group">
+                            <label>Adresa</label>
+                            <input type="text" id="buyerAddr" oninput="render()">
+                        </div>
+                        <div class="form-group">
+                            <label>Grad</label>
+                            <input type="text" id="buyerCity" oninput="render()">
+                        </div>
+                        <div class="form-group">
+                            <label>Država</label>
+                            <input type="text" id="buyerCountry" oninput="render()">
+                        </div>
+                    </div>
+                    <div class="buyer-grid-3">
+                        <div class="form-group">
+                            <label>JIB</label>
+                            <input type="text" id="buyerJIB" oninput="render()">
+                        </div>
+                        <div class="form-group">
+                            <label>PDV ID</label>
+                            <input type="text" id="buyerVAT" oninput="render()">
+                        </div>
+                        <div class="form-group">
+                            <label>Kontakt osoba</label>
+                            <input type="text" id="buyerContact" oninput="render()">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" id="buyerEmail" oninput="render()">
+                        </div>
+                        <div class="form-group">
+                            <label>Referenca</label>
+                            <input type="text" id="buyerRef" oninput="render()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Stavke</h3>
+                    <div class="item-header">
+                        <div id="headerItemNum">R.br.</div>
+                        <div id="headerPN">Šifra</div>
+                        <div id="headerItem">Opis</div>
+                        <div id="headerQty">Kol.</div>
+                        <div id="headerUnit">J.mj.</div>
+                        <div id="headerPrice">Cijena</div>
+                        <div id="headerDiscount">Popust%</div>
+                        <div id="headerVat">PDV%</div>
+                        <div></div>
+                    </div>
+                    <div id="items"></div>
+                    <button class="primary" onclick="addItem('','',1,'kom',0,0,17)">+ Dodaj stavku</button>
+                </div>
+
+                <div class="section">
+                    <h3>Dodatne informacije</h3>
+                    <div class="form-group">
+                        <label>Napomene</label>
+                        <textarea id="paymentTerms" oninput="render()" placeholder="Dodatne napomene za ovaj dokument"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>👁️ Pregled dokumenta</h2>
+                <div id="preview"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal za postavke firme -->
+    <div id="companyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCompanySettings()">&times;</span>
+            <h2>⚙️ Postavke firme</h2>
+            <div class="form-group">
+                <label>Naziv firme *</label>
+                <input type="text" id="companyName">
+            </div>
+            <div class="form-group">
+                <label>Kontakt osoba</label>
+                <input type="text" id="companyContact">
+            </div>
+            <div class="form-group">
+                <label>E-mail *</label>
+                <input type="email" id="companyEmail">
+            </div>
+            <div class="form-group">
+                <label>Adresa</label>
+                <input type="text" id="companyAddr">
+            </div>
+            <div class="date-grid">
+                <div class="form-group">
+                    <label>Grad</label>
+                    <input type="text" id="companyCity">
+                </div>
+                <div class="form-group">
+                    <label>Država</label>
+                    <input type="text" id="companyCountry">
+                </div>
+            </div>
+            <div class="date-grid">
+                <div class="form-group">
+                    <label>JIB</label>
+                    <input type="text" id="companyJIB">
+                </div>
+                <div class="form-group">
+                    <label>PDV ID</label>
+                    <input type="text" id="companyVAT">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Informacije o banci</label>
+                <textarea id="companyBank" placeholder="Banka: ...
+IBAN: ...
+SWIFT: ..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Footer tekst</label>
+                <textarea id="companyFooter" placeholder="Tekst koji će se pojaviti na dnu svakog dokumenta"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Logo (opciono)</label>
+                <input type="file" accept="image/*" onchange="previewLogo(event)">
+                <div id="logoPreview"></div>
+            </div>
+            <button class="primary" onclick="saveCompanySettings()">💾 Sačuvaj</button>
+        </div>
+    </div>
+
+    <!-- Modal za upute -->
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content instructions-wide">
+            <span class="close" onclick="closeInstructions()">&times;</span>
+            <h2>❓ Kako koristiti E-Faktura Generator</h2>
+
+            <h3>🏢 Korak 1: Postavke firme</h3>
+            <p>Prije prvog korištenja, morate unijeti podatke vaše firme. Kliknite na <strong>⚙️ Postavke firme</strong>.</p>
+            <p><strong>Obavezna polja:</strong></p>
+            <ul>
+                <li>✅ Naziv firme</li>
+                <li>✅ E-mail</li>
+            </ul>
+            <p><strong>Opciona polja:</strong> Kontakt osoba, Adresa, Grad, Država, JIB, PDV ID, Informacije o banci, Footer tekst, Logo</p>
+            <p><em>Napomena: Podaci se čuvaju lokalno u vašem browseru.</em></p>
+
+            <h3>📋 Korak 2: Tip dokumenta</h3>
+            <p>Izaberite tip dokumenta:</p>
+            <ul>
+                <li><strong>Ponuda</strong> - ponuda cijene (Prodavač → Kupac)</li>
+                <li><strong>Faktura</strong> - standardni račun (Prodavač → Kupac) - omogućava BF polje</li>
+                <li><strong>Narudžbenica</strong> - narudžba robe/usluga (Naručilac → Dobavljač)</li>
+            </ul>
+
+            <h3>📝 Korak 3: Popunjavanje dokumenta</h3>
+            <p><strong>Obavezna polja označena su sa *</strong></p>
+            <ul>
+                <li><strong>Broj dokumenta *</strong> - npr. 2024/001</li>
+                <li><strong>Naziv kupca *</strong></li>
+            </ul>
+            <p><strong>Opciona polja:</strong> BF (samo za fakturu), Datum izdavanja, Datum isporuke, Rok plaćanja (dana), ostali podaci o kupcu</p>
+
+            <h3>🛒 Korak 4: Dodavanje stavki</h3>
+            <p>Kliknite <strong>+ Dodaj stavku</strong>. Za svaku stavku unesite:</p>
+            <p><strong>Obavezna polja za validaciju:</strong></p>
+            <ul>
+                <li>✅ Šifra (PN) - mora biti popunjena</li>
+                <li>✅ Opis - mora biti popunjen</li>
+                <li>✅ Količina - mora biti veća od 0</li>
+                <li>✅ Cijena - mora biti veća od 0</li>
+            </ul>
+            <p><strong>Opciona polja:</strong> J.mj. (jedinica mjere), Popust%, PDV%</p>
+            <p><em>Napomena: Minimalno jedna stavka mora biti pravilno popunjena da bi dugmad za čuvanje bila aktivna.</em></p>
+
+            <h3>💾 Korak 5: Čuvanje i učitavanje</h3>
+            <p><strong>💾 Sačuvaj JSON</strong> - čuva dokument u .json fajl. Možete ga kasnije učitati i nastaviti uređivati.</p>
+            <p><strong>📂 Učitaj JSON</strong> - učitava prethodno sačuvani dokument.</p>
+            <p><strong>🗑️ Obriši unos</strong> - briše sve unešene podatke i omogućava pravljenje novog dokumenta.</p>
+            <p><strong>💾 Preuzmi HTML</strong> - preuzima dokument kao .html fajl koji možete otvoriti u browseru.</p>
+            <p><strong>🖨️ Print u PDF</strong> - otvara dijalog za print. Odaberite "Save as PDF" da sačuvate kao PDF fajl.</p>
+
+            <h3>🌐 Jezik</h3>
+            <p>Kliknite na <strong>🇧🇦 Bosanski</strong> ili <strong>🇬🇧 English</strong> da promijenite jezik dokumenta.</p>
+
+            <h3>💡 Savjeti</h3>
+            <ul>
+                <li>Pregled dokumenta se automatski ažurira dok unosite podatke</li>
+                <li>Dugmad za čuvanje su neaktivna dok ne unesete broj dokumenta, naziv kupca i minimalno jednu validnu stavku</li>
+                <li>BF polje je dostupno samo za tip dokumenta "Faktura"</li>
+                <li>Rok plaćanja se automatski izračunava kad unesete broj dana (npr. 15 dana = datum izdavanja + 15 dana)</li>
+                <li>Logo možete promijeniti bilo kada u postavkama firme</li>
+            </ul>
+
+            <button class="primary" onclick="closeInstructions()">Razumijem</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
