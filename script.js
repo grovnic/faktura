@@ -25,7 +25,7 @@ var t = {
 
 var companyData = null;
 
-var WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyB3fiioZavFObarlCtHFhrzzAZ0T9_6eLNtAbRcEVHKxiFyUvRiW5jBL_J1XmQUmTvvQ/exec';
+var WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwKvVxfK6GrixoZkm0QGm0gyajnGbGYgoYpJvS_Mf5y8U1aKRGXD7dMfZVq7gcpL6Worg/exec';
 
 var invoiceCSS = `.invoice{background:white;padding:40px 45px;max-width:900px;margin:0 auto;box-shadow:0 0 40px rgba(0,0,0,0.1);font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;color:#000;line-height:1.5}.invoice-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:18px;border-bottom:3px solid #000}.invoice-logo{max-width:560px;max-height:280px}.invoice-title{text-align:right}.invoice-title h1{font-size:36px;font-weight:700;color:#000;margin:0 0 6px 0;letter-spacing:-0.5px}.invoice-meta{font-size:14px;color:#000;margin:3px 0;font-weight:500}.invoice-parties{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin:20px 0 18px 0}.party-box{padding:0}.party-label{font-size:11px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}.party-name{font-size:16px;font-weight:700;color:#000;margin-bottom:3px}.party-details{font-size:13px;color:#000;line-height:1.4;font-weight:500}.invoice-table{width:100%;border-collapse:collapse;margin:20px 0 18px 0;table-layout:fixed}.invoice-table thead{background:#e0e0e0;border-top:3px solid #000;border-bottom:3px solid #000}.invoice-table th{padding:9px 5px;text-align:left;font-size:10px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:0.5px}.invoice-table th:nth-child(1){width:40px;text-align:center}.invoice-table th:nth-child(2){width:100px}.invoice-table th:nth-child(3){width:auto}.invoice-table th:nth-child(4){width:60px;text-align:right}.invoice-table th:nth-child(5){width:60px}.invoice-table th:nth-child(6){width:85px;text-align:right}.invoice-table th:nth-child(7){width:70px;text-align:right}.invoice-table th:nth-child(8){width:60px;text-align:right}.invoice-table th:nth-child(9){width:95px;text-align:right}.invoice-table td{padding:9px 5px;border-bottom:2px solid #ccc;font-size:13px;color:#000;font-weight:500;vertical-align:top;word-wrap:break-word}.invoice-table td:nth-child(1){text-align:center}.invoice-table td:nth-child(2){}.invoice-table td:nth-child(3){}.invoice-table td:nth-child(4){text-align:right}.invoice-table td:nth-child(5){}.invoice-table td:nth-child(6){text-align:right}.invoice-table td:nth-child(7){text-align:right}.invoice-table td:nth-child(8){text-align:right}.invoice-table td:nth-child(9){text-align:right}.invoice-table tbody tr:last-child td{border-bottom:3px solid #000}.invoice-table .text-right{text-align:right}.invoice-table .text-center{text-align:center}.invoice-totals{margin:15px 0 0 auto;width:350px}.total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px;font-weight:600}.total-row.subtotal{color:#000;padding-bottom:6px}.total-row.vat{color:#000;padding-bottom:6px;border-bottom:3px solid #000}.total-row.grand{font-size:20px;font-weight:700;color:#000;padding-top:10px}.invoice-notes{margin-top:20px;padding:12px;background:#f0f0f0;border-left:5px solid #000;border-radius:4px}.invoice-notes .label{font-size:11px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}.invoice-notes .content{font-size:13px;color:#000;font-style:italic;font-weight:500;line-height:1.4}.payment-box{margin-top:15px;padding:12px;background:#f0f0f0;border:2px solid #000;border-radius:6px}.payment-box .label{font-size:11px;font-weight:700;color:#000;margin-bottom:5px}.payment-box .info{font-size:13px;color:#000;font-weight:600;line-height:1.4}.invoice-signature-row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:40px;margin-bottom:30px}.electronic-notice{flex:1;font-size:11px;color:#666;font-style:italic;text-align:center;padding:0 20px}.signature-box{flex:1;text-align:right}.signature-line{border-bottom:2px solid #000;margin-bottom:8px;height:50px;width:200px;margin-left:auto}.signature-label{font-size:12px;font-weight:600;color:#000}.invoice-footer{margin-top:30px;padding-top:18px;border-top:2px solid #000;text-align:center;font-size:10px;color:#333;line-height:1.5;font-weight:500}@media print{body{background:white;padding:0}.invoice{box-shadow:none;padding:35px 40px}.invoice-header,.invoice-table thead,.invoice-table tbody tr:last-child td,.total-row.vat,.invoice-notes,.payment-box,.invoice-footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}}`;
 
@@ -42,13 +42,79 @@ function loadCompanyData(){
     }
 }
 
-function showCompanySettings(){if(companyData){document.getElementById('companyName').value=companyData.name||'';document.getElementById('companyContact').value=companyData.contact||'';document.getElementById('companyEmail').value=companyData.email||'';document.getElementById('companyAddr').value=companyData.addr||'';document.getElementById('companyCity').value=companyData.city||'';document.getElementById('companyCountry').value=companyData.country||'';document.getElementById('companyJIB').value=companyData.jib||'';document.getElementById('companyVAT').value=companyData.vat||'';document.getElementById('companyBank').value=companyData.bank||'';document.getElementById('companyFooter').value=companyData.footer||'';if(companyData.logo){document.getElementById('logoPreview').innerHTML='<img src="'+companyData.logo+'" style="max-width:200px;max-height:100px;">';}}document.getElementById('companyModal').style.display='block';document.body.style.overflow='hidden';}
+function showCompanySettings(){
+    if(companyData){
+        document.getElementById('companyName').value=companyData.name||'';
+        document.getElementById('companyContact').value=companyData.contact||'';
+        document.getElementById('companyTel').value=companyData.tel||'';
+        document.getElementById('companyEmail').value=companyData.email||'';
+        document.getElementById('companyAddr').value=companyData.addr||'';
+        document.getElementById('companyCity').value=companyData.city||'';
+        document.getElementById('companyCountry').value=companyData.country||'';
+        document.getElementById('companyJIB').value=companyData.jib||'';
+        document.getElementById('companyVAT').value=companyData.vat||'';
+        document.getElementById('companyBank').value=companyData.bank||'';
+        document.getElementById('companyFooter').value=companyData.footer||'';
+        if(companyData.logo){
+            document.getElementById('logoPreview').innerHTML='<img src="'+companyData.logo+'" style="max-width:200px;max-height:100px;">';
+        }
+    }
+    document.getElementById('companyModal').style.display='block';
+    document.body.style.overflow='hidden';
+}
 
 function closeCompanySettings(){document.getElementById('companyModal').style.display='none';document.body.style.overflow='auto';}
 
-function trackCompanyRegistration(companyName,companyEmail){var tracked=localStorage.getItem('companyTracked');if(tracked==='true'){console.log('⚠️ Firma već registrovana');return;}var url=WEBHOOK_URL+'?name='+encodeURIComponent(companyName)+'&email='+encodeURIComponent(companyEmail);console.log('📤 Šaljem GET request:',url);console.log('📋 Podaci:',{name:companyName,email:companyEmail});fetch(url,{method:'GET',mode:'no-cors'}).then(function(){localStorage.setItem('companyTracked','true');console.log('✅ Podaci poslati uspješno!');}).catch(function(error){console.error('❌ Greška:',error);});}
+function trackCompanyRegistration(companyName,companyEmail,companyContact,companyTel){
+    var tracked=localStorage.getItem('companyTracked');
+    if(tracked==='true'){
+        console.log('⚠️ Firma već registrovana');
+        return;
+    }
 
-function saveCompanySettings(){var name=document.getElementById('companyName').value.trim();var email=document.getElementById('companyEmail').value.trim();if(!name){alert('Naziv firme je obavezan!');return;}if(!email){alert('E-mail je obavezan!');return;}companyData={name:name,contact:document.getElementById('companyContact').value,email:email,addr:document.getElementById('companyAddr').value,city:document.getElementById('companyCity').value,country:document.getElementById('companyCountry').value,jib:document.getElementById('companyJIB').value,vat:document.getElementById('companyVAT').value,bank:document.getElementById('companyBank').value,footer:document.getElementById('companyFooter').value,logo:companyData&&companyData.logo?companyData.logo:''};localStorage.setItem('companyData',JSON.stringify(companyData));trackCompanyRegistration(name,email);closeCompanySettings();render();alert('✅ Podaci firme sačuvani!');}
+    var url=WEBHOOK_URL+'?name='+encodeURIComponent(companyName)+'&email='+encodeURIComponent(companyEmail)+'&contact='+encodeURIComponent(companyContact)+'&tel='+encodeURIComponent(companyTel);
+
+    console.log('📤 Šaljem GET request:',url);
+    console.log('📋 Podaci:',{name:companyName,email:companyEmail,contact:companyContact,tel:companyTel});
+
+    fetch(url,{method:'GET',mode:'no-cors'}).then(function(){
+        localStorage.setItem('companyTracked','true');
+        console.log('✅ Podaci poslati uspješno!');
+    }).catch(function(error){
+        console.error('❌ Greška:',error);
+    });
+}
+
+function saveCompanySettings(){
+    var name=document.getElementById('companyName').value.trim();
+    var email=document.getElementById('companyEmail').value.trim();
+    if(!name){alert('Naziv firme je obavezan!');return;}
+    if(!email){alert('E-mail je obavezan!');return;}
+
+    var contact=document.getElementById('companyContact').value;
+    var tel=document.getElementById('companyTel').value;
+
+    companyData={
+        name:name,
+        contact:contact,
+        tel:tel,
+        email:email,
+        addr:document.getElementById('companyAddr').value,
+        city:document.getElementById('companyCity').value,
+        country:document.getElementById('companyCountry').value,
+        jib:document.getElementById('companyJIB').value,
+        vat:document.getElementById('companyVAT').value,
+        bank:document.getElementById('companyBank').value,
+        footer:document.getElementById('companyFooter').value,
+        logo:companyData&&companyData.logo?companyData.logo:''
+    };
+
+    localStorage.setItem('companyData',JSON.stringify(companyData));
+    trackCompanyRegistration(name,email,contact,tel);
+    closeCompanySettings();
+    render();
+    alert('✅ Podaci firme sačuvani!');
+}
 
 function previewLogo(event){var file=event.target.files[0];if(file){var reader=new FileReader();reader.onload=function(e){var logoBase64=e.target.result;if(companyData){companyData.logo=logoBase64;}else{companyData={logo:logoBase64};}document.getElementById('logoPreview').innerHTML='<img src="'+logoBase64+'" style="max-width:200px;max-height:100px;">';};reader.readAsDataURL(file);}}
 
@@ -152,6 +218,7 @@ function clearDocument(){
     document.getElementById('docType').value='quote';
     document.getElementById('docNum').value='';
     document.getElementById('bfNum').value='';
+    document.getElementById('currency').value='KM';
     document.getElementById('buyerName').value='';
     document.getElementById('buyerAddr').value='';
     document.getElementById('buyerCity').value='';
@@ -228,6 +295,7 @@ function render(){
     var subtotal=0;
     var totalVat=0;
     var itemNum=0;
+    var currency=document.getElementById('currency').value;
 
     document.querySelectorAll('.item-row').forEach(function(row,idx){
         itemNum=idx+1;
@@ -399,9 +467,9 @@ function render(){
     html+='</table>';
 
     html+='<div class="invoice-totals">';
-    html+='<div class="total-row subtotal"><span>'+txt.subtotal+'</span><span>'+subtotal.toFixed(2)+'</span></div>';
-    html+='<div class="total-row vat"><span>'+txt.vatAmt+'</span><span>'+totalVat.toFixed(2)+'</span></div>';
-    html+='<div class="total-row grand"><span>'+txt.grand+'</span><span>'+grand.toFixed(2)+'</span></div>';
+    html+='<div class="total-row subtotal"><span>'+txt.subtotal+'</span><span>'+subtotal.toFixed(2)+' '+currency+'</span></div>';
+    html+='<div class="total-row vat"><span>'+txt.vatAmt+'</span><span>'+totalVat.toFixed(2)+' '+currency+'</span></div>';
+    html+='<div class="total-row grand"><span>'+txt.grand+'</span><span>'+grand.toFixed(2)+' '+currency+'</span></div>';
     html+='</div>';
 
     if(paymentTerms){
@@ -442,6 +510,7 @@ function saveJSON(){
         docType:document.getElementById('docType').value,
         docNum:document.getElementById('docNum').value,
         bfNum:document.getElementById('bfNum').value,
+        currency:document.getElementById('currency').value,
         dateIssue:document.getElementById('dateIssue').value,
         dateDelivery:document.getElementById('dateDelivery').value,
         paymentDays:document.getElementById('paymentDays').value,
@@ -494,6 +563,7 @@ function loadJSON(event){
             document.getElementById('docType').value=data.docType||'quote';
             document.getElementById('docNum').value=data.docNum||'';
             document.getElementById('bfNum').value=data.bfNum||'';
+            document.getElementById('currency').value=data.currency||'KM';
             document.getElementById('dateIssue').value=data.dateIssue||'';
             document.getElementById('dateDelivery').value=data.dateDelivery||'';
             document.getElementById('paymentDays').value=data.paymentDays||'';

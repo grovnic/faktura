@@ -206,17 +206,10 @@ textarea {
     gap: 10px;
 }
 
-/* Grid za dokument - 4 polja (STARI) */
-.doc-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1.5fr 1.5fr;
-    gap: 10px;
-}
-
-/* Grid za dokument - 6 polja (NOVI) */
+/* Grid za dokument - 7 polja (AŽURIRANO) */
 .doc-grid-extended {
     display: grid;
-    grid-template-columns: 1.2fr 1.8fr 0.8fr 1.2fr 1.2fr 1.2fr;
+    grid-template-columns: 1.2fr 1.2fr 0.7fr 0.8fr 1.2fr 1.2fr 1.2fr;
     gap: 10px;
 }
 

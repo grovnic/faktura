@@ -65,6 +65,14 @@
                             <input type="text" id="bfNum" oninput="render()" placeholder="12345" disabled>
                         </div>
                         <div class="form-group">
+                            <label>Valuta</label>
+                            <select id="currency" onchange="render()">
+                                <option value="KM">KM</option>
+                                <option value="EUR">EUR</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label>Datum izdavanja</label>
                             <input type="date" id="dateIssue" oninput="render()">
                         </div>
@@ -166,12 +174,18 @@
                 <input type="text" id="companyName">
             </div>
             <div class="form-group">
-                <label>Kontakt osoba</label>
-                <input type="text" id="companyContact">
-            </div>
-            <div class="form-group">
                 <label>E-mail *</label>
                 <input type="email" id="companyEmail">
+            </div>
+            <div class="date-grid">
+                <div class="form-group">
+                    <label>Kontakt osoba</label>
+                    <input type="text" id="companyContact">
+                </div>
+                <div class="form-group">
+                    <label>Tel.</label>
+                    <input type="tel" id="companyTel" placeholder="+387 61 123 456">
+                </div>
             </div>
             <div class="form-group">
                 <label>Adresa</label>
@@ -229,7 +243,7 @@ SWIFT: ..."></textarea>
                 <li>✅ Naziv firme</li>
                 <li>✅ E-mail</li>
             </ul>
-            <p><strong>Opciona polja:</strong> Kontakt osoba, Adresa, Grad, Država, JIB, PDV ID, Informacije o banci, Footer tekst, Logo</p>
+            <p><strong>Opciona polja:</strong> Kontakt osoba, Tel., Adresa, Grad, Država, JIB, PDV ID, Informacije o banci, Footer tekst, Logo</p>
             <p><em>Napomena: Podaci se čuvaju lokalno u vašem browseru.</em></p>
 
             <h3>📋 Korak 2: Tip dokumenta</h3>
@@ -246,7 +260,7 @@ SWIFT: ..."></textarea>
                 <li><strong>Broj dokumenta *</strong> - npr. 2024/001</li>
                 <li><strong>Naziv kupca *</strong></li>
             </ul>
-            <p><strong>Opciona polja:</strong> BF (samo za fakturu), Datum izdavanja, Datum isporuke, Rok plaćanja (dana), ostali podaci o kupcu</p>
+            <p><strong>Opciona polja:</strong> BF (samo za fakturu), Valuta (KM/EUR/USD), Datum izdavanja, Datum isporuke, Rok plaćanja (dana), ostali podaci o kupcu</p>
 
             <h3>🛒 Korak 4: Dodavanje stavki</h3>
             <p>Kliknite <strong>+ Dodaj stavku</strong>. Za svaku stavku unesite:</p>
@@ -275,6 +289,7 @@ SWIFT: ..."></textarea>
                 <li>Pregled dokumenta se automatski ažurira dok unosite podatke</li>
                 <li>Dugmad za čuvanje su neaktivna dok ne unesete broj dokumenta, naziv kupca i minimalno jednu validnu stavku</li>
                 <li>BF polje je dostupno samo za tip dokumenta "Faktura"</li>
+                <li>Valuta se prikazuje pored iznosa (KM, EUR ili USD)</li>
                 <li>Rok plaćanja se automatski izračunava kad unesete broj dana (npr. 15 dana = datum izdavanja + 15 dana)</li>
                 <li>Logo možete promijeniti bilo kada u postavkama firme</li>
             </ul>
