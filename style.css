@@ -1,5 +1,9 @@
 /* Reset i osnove */
-* {margin: 0; padding: 0; box-sizing: border-box;}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -206,7 +210,7 @@ textarea {
     gap: 10px;
 }
 
-/* Grid za dokument - 7 polja (AŽURIRANO) */
+/* Grid za dokument - 7 polja */
 .doc-grid-extended {
     display: grid;
     grid-template-columns: 1.2fr 1.2fr 0.7fr 0.8fr 1.2fr 1.2fr 1.2fr;
@@ -220,14 +224,14 @@ textarea {
     gap: 10px;
 }
 
-/* Grid za kupca - red 3: JIB, PDV, Kontakt, Email, Referenca */
+/* Grid za kupca - red 3: JIB, PDV, Kontakt, Tel, Email, Referenca (6 kolona) */
 .buyer-grid-3 {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     gap: 10px;
 }
 
-/* Header za kolone stavki - SA PN (9 KOLONA) */
+/* Header za kolone stavki - 9 KOLONA */
 .item-header {
     display: grid;
     grid-template-columns: 50px 100px 1fr 70px 70px 90px 80px 70px 60px;
@@ -431,20 +435,6 @@ button.info-btn:disabled {
     color: #2d3748;
 }
 
-/* First time setup */
-#firstTimeSetup {
-    background: #fef5e7;
-    border: 2px solid #f39c12;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-#firstTimeSetup h3 {
-    color: #d68910;
-    margin-bottom: 10px;
-}
-
 /* Logo preview */
 #logoPreview {
     margin-top: 10px;
@@ -485,40 +475,40 @@ button.info-btn:disabled {
         background: white;
         padding: 0;
     }
-
+    
     .container {
         box-shadow: none;
         padding: 0;
         border-radius: 0;
     }
-
+    
     /* SAKRIJ SVE OSIM PREVIEW DIV-A */
     .container > h1 {
         display: none !important;
     }
-
+    
     .button-row {
         display: none !important;
     }
-
+    
     .validation-info {
         display: none !important;
     }
-
+    
     .layout {
         display: block;
     }
-
+    
     /* SAKRIJ PRVI PANEL (forma) */
     .panel:first-child {
         display: none !important;
     }
-
+    
     /* SAKRIJ H2 'Pregled dokumenta' */
     .panel:last-child h2 {
         display: none !important;
     }
-
+    
     /* UKLONI PADDING/BORDER SA PANEL PREVIEW */
     .panel:last-child {
         background: none !important;
@@ -526,7 +516,7 @@ button.info-btn:disabled {
         padding: 0 !important;
         margin: 0 !important;
     }
-
+    
     /* UKLONI BORDER SA PREVIEW DIV-A */
     #preview {
         border: none !important;

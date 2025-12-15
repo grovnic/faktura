@@ -8,11 +8,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>📄 E-Faktura Generator | Kontakt: <a href="mailto:electroace@gmail.com">📧 electroace@gmail.com</a></h1>
+        <h1>📄 E-Faktura Generator | Kontakt: <a href="mailto:electroace@gmail.com">electroace@gmail.com</a></h1>
 
         <div class="button-row">
             <button class="primary" onclick="showCompanySettings()">⚙️ Postavke firme</button>
-
+            
             <!-- SEGMENTED CONTROL ZA JEZIK -->
             <div class="language-selector">
                 <button class="lang-btn active" data-lang="bs" onclick="changeLang('bs')">🇧🇦 Bosanski</button>
@@ -22,21 +22,21 @@
             <button onclick="showInstructions()">❓ Upute</button>
             <button id="btnSaveJSON" class="primary" onclick="saveJSON()" disabled>💾 Sačuvaj JSON</button>
             <button id="btnLoadJSON" class="primary" onclick="document.getElementById('fileInput').click()">📂 Učitaj JSON</button>
-            <input type="file" id="fileInput" accept=".json" onchange="loadJSON(event)" style="display:none;">
+            <input type="file" id="fileInput" accept=".json" onchange="loadJSON(event)" style="display:none">
             <button class="danger" onclick="clearDocument()">🗑️ Obriši unos</button>
             <button id="btnDownloadHTML" class="secondary" onclick="downloadHTML()" disabled>💾 Preuzmi HTML</button>
             <button id="btnPrint" class="info-btn" onclick="printToPDF()" disabled>🖨️ Print u PDF</button>
         </div>
 
         <!-- VALIDATION INFO BOX -->
-        <div id="validationInfo" class="validation-info" style="display:none;">
+        <div id="validationInfo" class="validation-info" style="display:none">
             <div class="validation-icon">⚠️</div>
             <div class="validation-text">
                 <strong>Za aktiviranje dugmadi potrebno je unijeti:</strong>
                 <ul>
-                    <li>Broj dokumenta</li>
-                    <li>Naziv kupca</li>
-                    <li>Minimalno 1 stavka sa: <strong>šifra</strong>, <strong>opis</strong>, <strong>količina > 0</strong>, <strong>cijena > 0</strong></li>
+                    <li><strong>Broj dokumenta</strong></li>
+                    <li><strong>Naziv kupca</strong></li>
+                    <li>Minimalno <strong>1 stavka</strong> sa <strong>šifra</strong>, <strong>opis</strong>, <strong>količina &gt; 0</strong>, <strong>cijena &gt; 0</strong></li>
                 </ul>
             </div>
         </div>
@@ -58,7 +58,7 @@
                         </div>
                         <div class="form-group">
                             <label>Broj *</label>
-                            <input type="text" id="docNum" oninput="validateAndRender()" placeholder="2024/001">
+                            <input type="text" id="docNum" oninput="validateAndRender()" placeholder="2024-001">
                         </div>
                         <div class="form-group">
                             <label>BF</label>
@@ -121,6 +121,10 @@
                             <input type="text" id="buyerContact" oninput="render()">
                         </div>
                         <div class="form-group">
+                            <label>Tel.</label>
+                            <input type="tel" id="buyerTel" oninput="render()" placeholder="+387 61 123 456">
+                        </div>
+                        <div class="form-group">
                             <label>E-mail</label>
                             <input type="email" id="buyerEmail" oninput="render()">
                         </div>
@@ -152,7 +156,7 @@
                     <h3>Dodatne informacije</h3>
                     <div class="form-group">
                         <label>Napomene</label>
-                        <textarea id="paymentTerms" oninput="render()" placeholder="Dodatne napomene za ovaj dokument"></textarea>
+                        <textarea id="paymentTerms" oninput="render()" placeholder="Dodatne napomene za ovaj dokument..."></textarea>
                     </div>
                 </div>
             </div>
@@ -213,17 +217,15 @@
             </div>
             <div class="form-group">
                 <label>Informacije o banci</label>
-                <textarea id="companyBank" placeholder="Banka: ...
-IBAN: ...
-SWIFT: ..."></textarea>
+                <textarea id="companyBank" placeholder="Banka: ... | IBAN: ... | SWIFT: ..."></textarea>
             </div>
             <div class="form-group">
                 <label>Footer tekst</label>
                 <textarea id="companyFooter" placeholder="Tekst koji će se pojaviti na dnu svakog dokumenta"></textarea>
             </div>
             <div class="form-group">
-                <label>Logo (opciono)</label>
-                <input type="file" accept="image/*" onchange="previewLogo(event)">
+                <label>Logo (opciono) - Veličina cca 300x125 px, PNG ili JPG</label>
+                <input type="file" accept="image/png,image/jpeg,image/jpg" onchange="previewLogo(event)">
                 <div id="logoPreview"></div>
             </div>
             <button class="primary" onclick="saveCompanySettings()">💾 Sačuvaj</button>
@@ -234,14 +236,14 @@ SWIFT: ..."></textarea>
     <div id="instructionsModal" class="modal">
         <div class="modal-content instructions-wide">
             <span class="close" onclick="closeInstructions()">&times;</span>
-            <h2>❓ Kako koristiti E-Faktura Generator</h2>
-
-            <h3>🏢 Korak 1: Postavke firme</h3>
+            <h2>📖 Kako koristiti E-Faktura Generator</h2>
+            
+            <h3>🔧 Korak 1: Postavke firme</h3>
             <p>Prije prvog korištenja, morate unijeti podatke vaše firme. Kliknite na <strong>⚙️ Postavke firme</strong>.</p>
             <p><strong>Obavezna polja:</strong></p>
             <ul>
-                <li>✅ Naziv firme</li>
-                <li>✅ E-mail</li>
+                <li>Naziv firme</li>
+                <li>E-mail</li>
             </ul>
             <p><strong>Opciona polja:</strong> Kontakt osoba, Tel., Adresa, Grad, Država, JIB, PDV ID, Informacije o banci, Footer tekst, Logo</p>
             <p><em>Napomena: Podaci se čuvaju lokalno u vašem browseru.</em></p>
@@ -254,22 +256,22 @@ SWIFT: ..."></textarea>
                 <li><strong>Narudžbenica</strong> - narudžba robe/usluga (Naručilac → Dobavljač)</li>
             </ul>
 
-            <h3>📝 Korak 3: Popunjavanje dokumenta</h3>
+            <h3>✏️ Korak 3: Popunjavanje dokumenta</h3>
             <p><strong>Obavezna polja označena su sa *</strong></p>
             <ul>
-                <li><strong>Broj dokumenta *</strong> - npr. 2024/001</li>
+                <li><strong>Broj dokumenta *</strong> - npr. 2024-001</li>
                 <li><strong>Naziv kupca *</strong></li>
             </ul>
             <p><strong>Opciona polja:</strong> BF (samo za fakturu), Valuta (KM/EUR/USD), Datum izdavanja, Datum isporuke, Rok plaćanja (dana), ostali podaci o kupcu</p>
 
-            <h3>🛒 Korak 4: Dodavanje stavki</h3>
+            <h3>📦 Korak 4: Dodavanje stavki</h3>
             <p>Kliknite <strong>+ Dodaj stavku</strong>. Za svaku stavku unesite:</p>
             <p><strong>Obavezna polja za validaciju:</strong></p>
             <ul>
-                <li>✅ Šifra (PN) - mora biti popunjena</li>
-                <li>✅ Opis - mora biti popunjen</li>
-                <li>✅ Količina - mora biti veća od 0</li>
-                <li>✅ Cijena - mora biti veća od 0</li>
+                <li>Šifra (PN) - mora biti popunjena</li>
+                <li>Opis - mora biti popunjen</li>
+                <li>Količina - mora biti veća od 0</li>
+                <li>Cijena - mora biti veća od 0</li>
             </ul>
             <p><strong>Opciona polja:</strong> J.mj. (jedinica mjere), Popust%, PDV%</p>
             <p><em>Napomena: Minimalno jedna stavka mora biti pravilno popunjena da bi dugmad za čuvanje bila aktivna.</em></p>
@@ -294,7 +296,7 @@ SWIFT: ..."></textarea>
                 <li>Logo možete promijeniti bilo kada u postavkama firme</li>
             </ul>
 
-            <button class="primary" onclick="closeInstructions()">Razumijem</button>
+            <button class="primary" onclick="closeInstructions()">✅ Razumijem</button>
         </div>
     </div>
 
